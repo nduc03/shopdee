@@ -1,14 +1,13 @@
+import java.util.Objects;
+
 public class Review {
     private final int id;
-    private Customer author;
+    private final Customer author;
     private double rating;
     private String comment;
 
     private static int currentId = 1;
 
-    public Review() {
-        id = currentId++;
-    }
     public Review(Customer author, double rating, String comment) {
         id = currentId++;
         this.author = author;
@@ -46,5 +45,10 @@ public class Review {
             return false;
         }
         return this.id == ((Review) obj).id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

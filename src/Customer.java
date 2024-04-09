@@ -1,16 +1,15 @@
-import java.util.Hashtable;
 import java.util.List;
 
 public class Customer extends User{
-    Hashtable<Integer, Integer> cart;
+    List<ItemStock> cart;
     List<Order> orders;
     Shop ownedShop;
 
-    public Hashtable<Integer, Integer> getCart() {
+    public List<ItemStock> getCart() {
         return cart;
     }
 
-    public void setCart(Hashtable<Integer, Integer> cart) {
+    public void setCart(List<ItemStock> cart) {
         this.cart = cart;
     }
 
