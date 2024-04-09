@@ -1,9 +1,10 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Customer extends User{
-    List<ItemStock> cart;
-    List<Order> orders;
-    Shop ownedShop;
+    private List<ItemStock> cart;
+    private List<Order> orders;
+    private Shop ownedShop;
 
     public List<ItemStock> getCart() {
         return cart;
@@ -27,5 +28,23 @@ public class Customer extends User{
 
     public void setOwnedShop(Shop ownedShop) {
         this.ownedShop = ownedShop;
+    }
+
+    public void addToCart(ItemStock item){
+        if (item != null) this.cart.add(item);
+    }
+
+    public void removeFromCart(ItemStock item){
+        if (item != null) this.cart.remove(item);
+    }
+
+    public List<ItemStock> releaseCart(){
+        List<ItemStock> cartReleased = this.cart;
+        this.cart = new ArrayList<>();
+        return cartReleased;
+    }
+
+    public void removeOrder(Order order){
+        if (order != null) this.orders.remove(order);
     }
 }

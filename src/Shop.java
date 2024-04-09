@@ -1,4 +1,3 @@
-import java.util.Hashtable;
 import java.util.List;
 
 public class Shop {
@@ -6,6 +5,7 @@ public class Shop {
     private List<ItemStock> stock;
     private double profit;
     private Address address;
+    private Customer shopOwner;
 
     public Shop(String name, Address address) {
 
@@ -25,5 +25,9 @@ public class Shop {
 
     public Address getAddress() {
         return address;
+    }
+
+    public Customer getShopOwner() {
+        return shopOwner;
     }
 }

@@ -1,4 +1,3 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,7 +7,6 @@ public class Item {
     private double price;
     private String description;
     private List<ItemCategory> categories;
-    private final List<Review> reviews;
 
     private static int currentId = 1;
 
@@ -18,7 +16,6 @@ public class Item {
         this.description = description;
         this.price = price;
         this.categories = category;
-        this.reviews = new ArrayList<>();
     }
 
     public int getId() {
@@ -49,38 +46,12 @@ public class Item {
         this.description = description;
     }
 
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
     public List<ItemCategory> getCategories() {
         return categories;
     }
 
     public void setCategories(List<ItemCategory> categories) {
         this.categories = categories;
-    }
-
-
-    public void addReview(Review review) {
-        this.reviews.add(review);
-    }
-
-    public void removeReview(int reviewId) {
-        reviews.stream()
-                .filter(review -> review.getId() == reviewId)
-                .findAny()
-                .ifPresent(this.reviews::remove);
-    }
-
-    public void modifyReview(int reviewId, double newRating, String newComment) {
-        reviews.stream()
-                .filter(review -> review.getId() == reviewId)
-                .findAny()
-                .ifPresent(review -> {
-                    review.setRating(newRating);
-                    review.setComment(newComment);
-                });
     }
 
     @Override
