@@ -21,11 +21,9 @@ public class Order {
         this.content = content;
     }
 
-    public void shipped(Shipper shipper) {
-        if (shipper.equals(this.shipper)) {
-            this.shipped = true;
-            this.shipper = null;
-        }
+    public void shipped() {
+        this.shipped = true;
+        this.shipper = null;
     }
 
     public int getId() {
