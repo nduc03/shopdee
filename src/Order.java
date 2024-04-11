@@ -4,31 +4,40 @@ import java.util.Objects;
 
 public class Order {
     private final int id;
-    private Address address;
     private Date orderedDate;
+    private final Customer customer;
     private Shipper shipper;
+    private boolean shipped;
     private final List<ItemStock> content;
 
     private static int currentId = 1;
 
-    public Order(Address address, Date orderedDate, List<ItemStock> content) {
+    public Order(Customer customer, Date orderedDate, List<ItemStock> content) {
         this.id = currentId++;
-        this.address = address;
+        this.customer = customer;
         this.orderedDate = orderedDate;
         this.shipper = null;
+        this.shipped = false;
         this.content = content;
+    }
+
+    public void shipped(Shipper shipper) {
+        if (shipper.equals(this.shipper)) {
+            this.shipped = true;
+            this.shipper = null;
+        }
     }
 
     public int getId() {
         return id;
     }
 
-    public Address getAddress() {
-        return address;
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public Address getAddress() {
+        return customer.getAddress();
     }
 
     public Date getOrderedDate() {
@@ -44,7 +53,12 @@ public class Order {
     }
 
     public void setShipper(Shipper shipper) {
+        if (shipper == null) return;
         this.shipper = shipper;
+    }
+
+    public boolean getShipped() {
+        return shipped;
     }
 
     public List<ItemStock> getContent() {

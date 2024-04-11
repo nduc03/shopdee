@@ -7,15 +7,17 @@ public class Payment {
     private final Date date;
     private final User sender;
     private final User receiver;
+    private final Order order;
 
     private static int currentId = 1;
 
-    public Payment(double amount, Date date, User sender, User receiver) {
+    public Payment(double amount, Date date, User sender, User receiver, Order order) {
         this.id = currentId++;
         this.amount = amount;
         this.date = date;
         this.sender = sender;
         this.receiver = receiver;
+        this.order = order;
     }
 
     public int getId() {
@@ -36,6 +38,10 @@ public class Payment {
 
     public User getReceiver() {
         return receiver;
+    }
+
+    public Order getOrder() {
+        return order;
     }
 
     @Override

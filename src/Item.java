@@ -4,17 +4,15 @@ import java.util.Objects;
 public class Item {
     private final int id;
     private String name;
-    private double price;
     private String description;
     private List<ItemCategory> categories;
 
     private static int currentId = 1;
 
-    public Item(String name, double price, String description, List<ItemCategory> category) {
+    public Item(String name, String description, List<ItemCategory> category) {
         this.id = currentId++;
         this.name = name;
         this.description = description;
-        this.price = price;
         this.categories = category;
     }
 
@@ -28,14 +26,6 @@ public class Item {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
     }
 
     public String getDescription() {

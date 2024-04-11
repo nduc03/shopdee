@@ -3,19 +3,29 @@ import java.util.List;
 
 public class ItemStock {
     private final Item item;
+    private double price;
     private int quantity;
     private final List<Review> reviews;
     private final Shop shop;
 
-    public ItemStock(Item item, int quantity, Shop shop) {
+    public ItemStock(Item item, double price, int quantity, Shop shop) {
         this.item = item;
+        this.price = price;
         this.quantity = quantity;
         this.shop = shop;
-        reviews = new ArrayList<>();
+        this.reviews = new ArrayList<>();
     }
 
     public Item getItem() {
         return item;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public int getQuantity() {

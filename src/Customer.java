@@ -3,7 +3,6 @@ import java.util.List;
 
 public class Customer extends User{
     private List<ItemStock> cart;
-    private List<Order> orders;
     private Shop ownedShop;
 
     public List<ItemStock> getCart() {
@@ -12,14 +11,6 @@ public class Customer extends User{
 
     public void setCart(List<ItemStock> cart) {
         this.cart = cart;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
     }
 
     public Shop getOwnedShop() {
@@ -42,9 +33,5 @@ public class Customer extends User{
         List<ItemStock> cartReleased = this.cart;
         this.cart = new ArrayList<>();
         return cartReleased;
-    }
-
-    public void removeOrder(Order order){
-        if (order != null) this.orders.remove(order);
     }
 }
