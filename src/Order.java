@@ -5,6 +5,7 @@ import java.util.Objects;
 public class Order {
     private final int id;
     private Date orderedDate;
+    private double totalPrice;
     private final Customer customer;
     private Shipper shipper;
     private boolean shipped;
@@ -19,15 +20,22 @@ public class Order {
         this.shipper = null;
         this.shipped = false;
         this.content = content;
+        totalPrice = 0;
+        for (ItemStock itemStock : content) {
+            totalPrice += itemStock.getPrice();
+        }
     }
 
     public void shipped() {
         this.shipped = true;
-        this.shipper = null;
     }
 
     public int getId() {
         return id;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
     }
 
     public Customer getCustomer() {

@@ -4,18 +4,17 @@ public final class ShopdeeSystem {
     private static final double SHIPPER_FEE = 0.01;
     private static final double PROFIT = 0.09;
     private final static double SHOP_PORTION = 1.0 - SHIPPER_FEE - PROFIT;
+
     private static Hashtable<String, Customer> customers;
     private static Hashtable<String, Shipper> shippers;
-    private static HashSet<Payment> holdingPayments;
     private static HashSet<Order> shippingOrder;
-    private static HashSet<Payment> shipperPayments;
     private static double profit = 0.0;
 
     private ShopdeeSystem() {
-        // TODO: Đọc file -> khởi tạo mọi thứ từ file
-        holdingPayments = new HashSet<>();
+        customers = new Hashtable<>();
+        shippers = new Hashtable<>();
         shippingOrder = new HashSet<>();
-        shipperPayments = new HashSet<>();
+        // TODO: Đọc file -> khởi tạo mọi thứ từ file
     }
 
     private static final class ShopdeeSystemHolder {
@@ -26,7 +25,19 @@ public final class ShopdeeSystem {
         return ShopdeeSystemHolder.instance;
     }
 
-    public static List<Order> getCustomerOrder(Customer customer) {
+    public List<Address> findAddresses(String address) {
+        return null;
+    }
+
+    public List<ItemStock> findProducts(String productName) {
+        return null;
+    }
+
+    public List<Shop> findShops(String shopName) {
+        return null;
+    }
+
+    public List<Order> getCustomerOrder(Customer customer) {
         if (customer == null) return Collections.emptyList();
 
         return shippingOrder.stream()
@@ -40,17 +51,7 @@ public final class ShopdeeSystem {
         List<ItemStock> cart = customer.releaseCart();
         Order order = new Order(customer, now, cart);
         shippingOrder.add(order);
-        cart.forEach(itemStock -> {
-            holdingPayments.add(new Payment(
-                    itemStock.getPrice() * SHOP_PORTION,
-                    now,
-                    customer,
-                    itemStock.getShop().getShopOwner(),
-                    order
-            ));
-            profit += itemStock.getPrice() * PROFIT;
-        });
-
+        profit += order.getTotalPrice() * PROFIT;
         return true;
     }
 
@@ -58,15 +59,6 @@ public final class ShopdeeSystem {
         if (shipper == null || order == null) return false;
         if (shipper.getOrder() == null || order.getShipper() == null) return false;
 
-        order.getContent().forEach(itemStock -> {
-            shipperPayments.add(new Payment(
-                    itemStock.getPrice() * SHIPPER_FEE,
-                    new Date(),
-                    order.getCustomer(),
-                    shipper,
-                    order
-            ));
-        });
         shipper.setOrder(order);
         order.setShipper(shipper);
         return true;
@@ -76,13 +68,9 @@ public final class ShopdeeSystem {
         if (shipper == null) return;
         Order order = shipper.getOrder();
         if (order == null) return;
-        shipperPayments.stream()
-                .filter(payment -> payment.getOrder().equals(order))
-                .forEach(payment -> {
-                    payment.getReceiver().addBilledPayment(payment);
-                    shipperPayments.remove(payment);
-                });
+
         shipper.setOrder(null);
+        shipper.addBalance(order.getTotalPrice() * SHIPPER_FEE);
         order.shipped();
     }
 
@@ -90,15 +78,15 @@ public final class ShopdeeSystem {
         if (customer == null || order == null) return;
         if (!order.getShipped()) return;
         shippingOrder.remove(order);
-        holdingPayments.stream()
-                .filter(payment -> payment.getOrder().equals(order))
-                .forEach(payment -> {
-                    payment.getReceiver().addBilledPayment(payment);
-                    holdingPayments.remove(payment);
-                });
+        if (order.getCustomer().equals(customer)) {
+            for (ItemStock itemStock : order.getContent()) {
+                itemStock.getShop().getShopOwner().addBalance(itemStock.getPrice() * SHOP_PORTION);
+            }
+        }
     }
 
     public boolean registerCustomer(String username, String password) {
+        if (username == null || password == null) return false;
         if (customers.containsKey(username)) {
             return false;
         }
@@ -106,11 +94,20 @@ public final class ShopdeeSystem {
         return true;
     }
 
-    public Optional<User> authorize(String username, String password) {
+    public boolean registerShipper(String username, String password) {
+        if (username == null || password == null) return false;
+        if (shippers.containsKey(username)) {
+            return false;
+        }
+        shippers.put(username, new Shipper(/*TODO: Placeholder*/));
+        return true;
+    }
+
+    public Optional<User> authorizeCustomer(String username, String password) {
         return null;
     }
 
-    public Optional<ItemStock> searchItem(String itemName) {
+    public Optional<User> authorizeShipper(String username, String password) {
         return null;
     }
 }
