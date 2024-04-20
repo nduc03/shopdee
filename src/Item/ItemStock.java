@@ -1,3 +1,8 @@
+package Item;
+
+import Utils.Review;
+import Shop.Shop;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,7 +72,7 @@ public class ItemStock {
 
     public void minusWith(ItemStock itemStock) {
         if (itemStock.getItem().getId() != this.item.getId()) {
-            throw new IllegalArgumentException("Item mismatch");
+            throw new IllegalArgumentException("Item.Item mismatch");
         }
         this.quantity -= itemStock.getQuantity();
     }

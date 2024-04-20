@@ -1,16 +1,31 @@
+package User;
+
+import Utils.Address;
+
 import java.util.Objects;
 
 public abstract class User {
-    private int id;
-    private String username;
-    private String password;
-    private String name;
+    private final int id;
+    private final String username;
+    private final String password;
+    private final String name;
     private double balance;
-    private String phone;
-    private Address address;
-    private UserRole role;
+    private final String phone;
+    private final Address address;
+    private final UserRole role;
 
     protected static int currentId = 1;
+
+    User(String username, String password, String name, String phone, Address address, UserRole role) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.balance = 0.0;
+        this.phone = phone;
+        this.address = address;
+        this.role = role;
+        this.id = currentId++;
+    }
 
     public String getName() {
         return name;

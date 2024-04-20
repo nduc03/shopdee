@@ -1,41 +1,28 @@
+package Order;
+
+import Item.*;
+import User.Customer;
+import Utils.Address;
+
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
-public class Order {
+public abstract class Order {
     private final int id;
     private Date orderedDate;
-    private double totalPrice;
     private final Customer customer;
-    private Shipper shipper;
-    private boolean shipped;
-    private final List<ItemStock> content;
+    private final Cart content;
 
     private static int currentId = 1;
 
-    public Order(Customer customer, Date orderedDate, List<ItemStock> content) {
+    public Order(Customer customer, Date orderedDate, Cart content) {
         this.id = currentId++;
         this.customer = customer;
         this.orderedDate = orderedDate;
-        this.shipper = null;
-        this.shipped = false;
         this.content = content;
-        totalPrice = 0;
-        for (ItemStock itemStock : content) {
-            totalPrice += itemStock.getPrice();
-        }
     }
-
-    public void shipped() {
-        this.shipped = true;
-    }
-
     public int getId() {
         return id;
-    }
-
-    public double getTotalPrice() {
-        return totalPrice;
     }
 
     public Customer getCustomer() {
@@ -54,20 +41,7 @@ public class Order {
         this.orderedDate = orderedDate;
     }
 
-    public Shipper getShipper() {
-        return shipper;
-    }
-
-    public void setShipper(Shipper shipper) {
-        if (shipper == null) return;
-        this.shipper = shipper;
-    }
-
-    public boolean getShipped() {
-        return shipped;
-    }
-
-    public List<ItemStock> getContent() {
+    public Cart getContent() {
         return content;
     }
 

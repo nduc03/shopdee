@@ -1,3 +1,7 @@
+package Utils;
+
+import User.Customer;
+
 import java.util.Objects;
 
 public class Review {

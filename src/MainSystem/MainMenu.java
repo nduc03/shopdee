@@ -1,13 +1,17 @@
-public class MainMenu {
+package MainSystem;
+
+import User.User;
+
+public final class MainMenu {
 
     private static User currentUser = null;
     private MainMenu(){}
 
 //    private static final class ShopdeeHolder {
-//        private static final MainMenu instance = new MainMenu();
+//        private static final MainSystem.MainMenu instance = new MainSystem.MainMenu();
 //    }
 //
-//    public static MainMenu getInstance(){
+//    public static MainSystem.MainMenu getInstance(){
 //        return ShopdeeHolder.instance;
 //    }
 
