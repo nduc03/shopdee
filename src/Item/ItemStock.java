@@ -1,7 +1,7 @@
 package Item;
 
-import Utils.Review;
 import Shop.Shop;
+import Utils.Review;
 
 import java.util.ArrayList;
 import java.util.List;

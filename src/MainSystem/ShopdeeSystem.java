@@ -3,10 +3,14 @@ package MainSystem;
 import Item.Cart;
 import Item.CartItem;
 import Item.ItemStock;
-import Order.*;
+import Order.Order;
+import Order.ShippingOrder;
+import Order.ShoppingOrder;
 import Shop.Shop;
-import User.*;
-import Utils.*;
+import User.Customer;
+import User.Shipper;
+import User.User;
+import Utils.Address;
 
 import java.util.*;
 

@@ -4,11 +4,15 @@ import Item.Cart;
 import Item.CartItem;
 import Item.ItemStock;
 import Shop.Shop;
+import Order.Order;
 import Utils.Address;
+
+import java.util.List;
 
 public class Customer extends User {
     private Cart cart;
     private Shop ownedShop;
+    private List<Order> orderList;
 
     public Customer(String username, String password, String name, String phone, Address address) {
         super(username, password, name, phone, address, UserRole.Customer);

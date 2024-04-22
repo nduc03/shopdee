@@ -11,7 +11,7 @@ public final class Utils {
         return Math.min(Math.max(value, min), max);
     }
 
-    public static String prompt(String prompt) {
+    public static String promptInput(String prompt) {
         System.out.print(prompt);
         return sc.nextLine();
     }
