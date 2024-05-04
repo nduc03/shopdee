@@ -7,11 +7,11 @@ import java.util.Objects;
 public abstract class User {
     private final int id;
     private final String username;
-    private final String password;
-    private final String name;
+    private String password;
+    private String name;
     private double balance;
-    private final String phone;
-    private final Address address;
+    private String phone;
+    private Address address;
     private final UserRole role;
 
     protected static int currentId = 1;
@@ -31,6 +31,10 @@ public abstract class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }
@@ -43,6 +47,10 @@ public abstract class User {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public double getBalance() {
         return balance;
     }
@@ -51,8 +59,16 @@ public abstract class User {
         return phone;
     }
 
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public Address getAddress() {
         return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public UserRole getRole() {

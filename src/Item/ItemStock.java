@@ -76,4 +76,13 @@ public class ItemStock {
         }
         this.quantity -= itemStock.getQuantity();
     }
+
+    @Override
+    public String toString() {
+        return "ItemStock:" +
+                "\nitem name: " + item.getName() +
+                "\nprice: " + price +
+                "\nquantity: " + quantity +
+                "\nshop: " + shop.getName() + '\n';
+    }
 }

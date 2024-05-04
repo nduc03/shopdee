@@ -4,10 +4,14 @@ public class Address {
     private final String addressLine;
     private final String street;
     private final String district;
-    private final String city;
+    private final City city;
     private final String province;
 
-    public Address(String addressLine, String street, String district, String city, String province) {
+    public enum City {
+        HANOI, HCMC, DANANG, HAIPHONG, CANTHO
+    }
+
+    public Address(String addressLine, String street, String district, City city, String province) {
         this.addressLine = addressLine;
         this.street = street;
         this.district = district;
@@ -15,7 +19,7 @@ public class Address {
         this.province = province;
     }
 
-    public Address(String addressLine, String street, String district, String city) {
+    public Address(String addressLine, String street, String district, City city) {
         this(addressLine, street, district, city, null);
     }
 
@@ -31,7 +35,7 @@ public class Address {
         return district;
     }
 
-    public String getCity() {
+    public City getCity() {
         return city;
     }
 

@@ -1,0 +1,5 @@
+package Order;
+
+public enum OrderState {
+    CREATED, SHOP_ACCEPTED, SHOP_REJECTED, SHIPPING, DELIVERED, CUSTOMER_CONFIRMED
+}

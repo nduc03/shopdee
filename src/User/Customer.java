@@ -55,4 +55,12 @@ public class Customer extends User {
         this.cart = new Cart();
         return cartReleased;
     }
+
+    public List<Order> getOrderList() {
+        return orderList;
+    }
+
+    public void setOrderList(List<Order> orderList) {
+        this.orderList = orderList;
+    }
 }

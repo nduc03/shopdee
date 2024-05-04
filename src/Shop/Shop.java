@@ -10,10 +10,10 @@ import java.util.Objects;
 
 public class Shop {
     private final int id;
-    private final String name;
+    private String name;
     private final List<ItemStock> stock;
     private double revenue;
-    private final Address address;
+    private Address address;
 
     private static int currentId = 0;
 
@@ -27,6 +27,10 @@ public class Shop {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public List<ItemStock> getStock() {
@@ -43,6 +47,10 @@ public class Shop {
 
     public Address getAddress() {
         return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
     }
 
     public void setRevenue(double revenue) {
