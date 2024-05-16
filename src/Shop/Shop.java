@@ -1,12 +1,12 @@
 package Shop;
 
 import Item.ItemStock;
-import Order.*;
+import Order.Order;
+import Order.OrderState;
 import User.Customer;
 import Utils.Address;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,15 +84,15 @@ public class Shop {
         return false;
     }
 
-    public Order makeOrder(Customer customer, OrderContent orderContent) {
-        if (customer == null || orderContent == null) throw new IllegalArgumentException("Null argument");
-        if (!orderContent.getShop().equals(this)) throw new IllegalArgumentException("Invalid shop");
-        orderContent.getItems().forEach(cartItem -> {
-            ItemStock itemStock = cartItem.getItemStock();
-            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
-        });
-        return new Order(customer, new Date(), orderContent);
-    }
+//    public Order makeOrder(Customer customer, OrderContent orderContent) {
+//        if (customer == null || orderContent == null) throw new IllegalArgumentException("Null argument");
+//        if (!orderContent.getShop().equals(this)) throw new IllegalArgumentException("Invalid shop");
+//        orderContent.getItems().forEach(cartItem -> {
+//            ItemStock itemStock = cartItem.getItemStock();
+//            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
+//        });
+//        return new Order(customer, new Date(), orderContent);
+//    }
 
     public void acceptOrder(Order order) {
         if (order != null && order.getShop() == this && order.getOrderState() == OrderState.CREATED) {

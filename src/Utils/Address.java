@@ -1,6 +1,6 @@
 package Utils;
 
-public record Address(String addressLine, Utils.Address.City city) {
+public record Address(String addressLine, Address.City city) {
     public enum City {
         HANOI, HCMC, DANANG, HAIPHONG, CANTHO
     }

@@ -1,6 +1,7 @@
 package User;
 
-import Order.*;
+import Order.Order;
+import Order.OrderState;
 import Utils.Address;
 
 public class Shipper extends User {

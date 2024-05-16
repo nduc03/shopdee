@@ -68,6 +68,10 @@ public class Cart {
         this.items.addAll(items);
     }
 
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+
     @Override
     public String toString() {
         return items.stream().map(item -> item.toString()).collect(Collectors.joining("\n"));

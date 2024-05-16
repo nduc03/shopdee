@@ -1,9 +1,15 @@
 package MainSystem;
 
-import Item.*;
-import Order.*;
+import Item.Cart;
+import Item.Item;
+import Item.ItemStock;
+import Order.Order;
+import Order.OrderContent;
+import Order.OrderState;
 import Shop.Shop;
-import User.*;
+import User.Customer;
+import User.Shipper;
+import User.User;
 import Utils.Address;
 
 import java.util.*;
@@ -131,14 +137,14 @@ public final class ShopdeeSystem {
 //        List<Order> orderList = new ArrayList<>();
         allShopFromCart.forEach(shop -> {
             OrderContent orderContent = OrderContent.filterFromCustomerCart(shop, cart);
-            orders.add(shop.makeOrder(customer, orderContent));
+            orders.add(new Order(customer, new Date(), orderContent));
         });
 
         // reduce the quantity in the shop when create order
-//        cart.getItems().forEach(cartItem -> {
-//            ItemStock itemStock = cartItem.getItemStock();
-//            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
-//        });
+        cart.getItems().forEach(cartItem -> {
+            ItemStock itemStock = cartItem.getItemStock();
+            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
+        });
 
 //        orders.addAll(orderList);
         profit += cart.getTotalPrice() * PROFIT;

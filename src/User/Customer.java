@@ -1,7 +1,10 @@
 package User;
 
-import Item.*;
-import Order.*;
+import Item.Cart;
+import Item.CartItem;
+import Item.ItemStock;
+import Order.Order;
+import Order.OrderState;
 import Shop.Shop;
 import Utils.Address;
 
