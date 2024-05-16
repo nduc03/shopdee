@@ -64,6 +64,10 @@ public class Cart {
         return items.stream().filter(item -> item.getId() == cartId).findFirst().orElse(null) != null;
     }
 
+    protected void setItems(Collection<CartItem> items) {
+        this.items.addAll(items);
+    }
+
     @Override
     public String toString() {
         return items.stream().map(item -> item.toString()).collect(Collectors.joining("\n"));

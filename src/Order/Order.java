@@ -3,6 +3,7 @@ package Order;
 import Item.Cart;
 import Shop.Shop;
 import User.Customer;
+import User.Shipper;
 import Utils.Address;
 
 import java.util.Date;
@@ -12,9 +13,11 @@ public class Order {
     private final int id;
     private Date orderedDate;
     private final Customer customer;
-    private final Cart content;
+    private final OrderContent content;
     private final Shop shop;
     private OrderState orderState;
+    private Shipper shipper;
+    private Address location;
 
     private static int currentId = 1;
 
@@ -23,9 +26,11 @@ public class Order {
         this.id = currentId++;
         this.customer = customer;
         this.orderedDate = orderedDate;
-        this.content = content.getCart();
+        this.content = content;
         this.shop = content.getShop();
         this.orderState = OrderState.CREATED;
+        this.location = shop.getAddress();
+        shipper = null;
     }
 
     public int getId() {
@@ -36,7 +41,7 @@ public class Order {
         return customer;
     }
 
-    public Address getAddress() {
+    public Address getCustomerAddress() {
         return customer.getAddress();
     }
 
@@ -64,6 +69,22 @@ public class Order {
         this.orderState = orderState;
     }
 
+    public Address getLocation() {
+        return location;
+    }
+
+    public void setLocation(Address location) {
+        this.location = location;
+    }
+
+    public Shipper getShipper() {
+        return shipper;
+    }
+
+    public void setShipper(Shipper shipper) {
+        this.shipper = shipper;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -82,7 +103,7 @@ public class Order {
                 "\nid=" + id +
                 "\norderedDate=" + orderedDate.toString() +
                 "\ncustomer=" + customer +
-                "\norderState=" + orderState +
+                "\norderState=" + orderState.toString() +
                 "\ncontent=" + content.toString() +
                 '\n';
     }

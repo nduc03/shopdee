@@ -1,16 +1,11 @@
 package Item;
 
 import Shop.Shop;
-import Utils.Review;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ItemStock {
     private final Item item;
     private double price;
     private int quantity;
-    private final List<Review> reviews;
     private final Shop shop;
 
     public ItemStock(Item item, double price, int quantity, Shop shop) {
@@ -18,7 +13,6 @@ public class ItemStock {
         this.price = price;
         this.quantity = quantity;
         this.shop = shop;
-        this.reviews = new ArrayList<>();
     }
 
     public Item getItem() {
@@ -41,38 +35,13 @@ public class ItemStock {
         this.quantity = quantity;
     }
 
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
     public Shop getShop() {
         return shop;
     }
 
-    public void addReview(Review review) {
-        this.reviews.add(review);
-    }
-
-    public void removeReview(int reviewId) {
-        reviews.stream()
-                .filter(review -> review.getId() == reviewId)
-                .findAny()
-                .ifPresent(this.reviews::remove);
-    }
-
-    public void modifyReview(int reviewId, double newRating, String newComment) {
-        reviews.stream()
-                .filter(review -> review.getId() == reviewId)
-                .findAny()
-                .ifPresent(review -> {
-                    review.setRating(newRating);
-                    review.setComment(newComment);
-                });
-    }
-
     public void minusWith(ItemStock itemStock) {
         if (itemStock.getItem().getId() != this.item.getId()) {
-            throw new IllegalArgumentException("Item.Item mismatch");
+            throw new IllegalArgumentException("Item mismatch");
         }
         this.quantity -= itemStock.getQuantity();
     }

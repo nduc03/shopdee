@@ -1,18 +1,13 @@
 package User;
 
-import Item.Cart;
-import Item.CartItem;
-import Item.ItemStock;
+import Item.*;
+import Order.*;
 import Shop.Shop;
-import Order.Order;
 import Utils.Address;
-
-import java.util.List;
 
 public class Customer extends User {
     private Cart cart;
     private Shop ownedShop;
-    private List<Order> orderList;
 
     public Customer(String username, String password, String name, String phone, Address address) {
         super(username, password, name, phone, address, UserRole.Customer);
@@ -50,17 +45,19 @@ public class Customer extends User {
         this.cart.removeFromCart(cartId);
     }
 
-    public Cart releaseCart() {
-        Cart cartReleased = this.cart;
+    public Cart buy() {
+        Cart oldCart = this.cart;
+        if (oldCart.getTotalPrice() > getBalance())
+            throw new Error("Not enough balance to buy");
         this.cart = new Cart();
-        return cartReleased;
+        decreaseBalance(oldCart.getTotalPrice());
+        return oldCart;
     }
 
-    public List<Order> getOrderList() {
-        return orderList;
-    }
+    public boolean confirmOrder(Order order) {
+        if (!order.getCustomer().equals(this)) return false;
 
-    public void setOrderList(List<Order> orderList) {
-        this.orderList = orderList;
+        order.setOrderState(OrderState.CUSTOMER_CONFIRMED);
+        return true;
     }
 }

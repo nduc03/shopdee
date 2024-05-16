@@ -1,6 +1,7 @@
 package User;
 
 import Utils.Address;
+import Utils.Utils;
 
 import java.util.Objects;
 
@@ -79,8 +80,14 @@ public abstract class User {
         balance += amount;
     }
     
-    public void decreaseBalance(double amount) {
+    protected void decreaseBalance(double amount) {
         balance -= amount;
+    }
+
+    public double withdraw(double amount) {
+        double possibleAmount = Utils.clamp(amount, 0, amount);
+        balance -= possibleAmount;
+        return possibleAmount;
     }
 
     @Override

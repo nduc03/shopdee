@@ -3,13 +3,14 @@ package Order;
 import Item.Cart;
 import Shop.Shop;
 
-public class OrderContent {
-    private final Cart cart;
+// Cart filtered by shop
+public class OrderContent extends Cart {
     private final Shop shop;
 
     private OrderContent(Shop shop, Cart items) {
-        this.cart = items;
+        super();
         this.shop = shop;
+        setItems(items.getItems());
     }
 
     public static OrderContent filterFromCustomerCart(Shop shop, Cart customerCart) {
@@ -22,9 +23,5 @@ public class OrderContent {
 
     public Shop getShop() {
         return shop;
-    }
-
-    public Cart getCart() {
-        return cart;
     }
 }

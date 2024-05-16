@@ -9,14 +9,14 @@ import Utils.Address;
 import java.util.*;
 
 public final class ShopdeeSystem {
-    private static final double SHIPPER_FEE = 0.01;
+    private static final double SHIPPER_FEE = 5000.0;
     private static final double PROFIT = 0.09;
-    private final static double SHOP_PORTION = 1.0 - SHIPPER_FEE - PROFIT;
+    private final static double SHOP_PORTION = 1.0 - PROFIT;
 
     private static Hashtable<String, Customer> customers;
     private static Hashtable<String, Shipper> shippers;
     private static double profit = 0.0;
-    private static List<Order> orders = new ArrayList<>();
+    private static final List<Order> orders = new ArrayList<>();
 
     private ShopdeeSystem() {
         customers = new Hashtable<>();
@@ -32,49 +32,73 @@ public final class ShopdeeSystem {
         return ShopdeeSystemHolder.instance;
     }
 
-    public List<Address> findAddresses(String address) {
-        return null;
-    }
-
     public List<ItemStock> findProducts(String productName) {
         ArrayList<ItemStock> result = new ArrayList<>();
-        for (ItemStock itemStock : getAllItems()) {
-            // TODO: find item
+        for (ItemStock itemStock : getAllItemStocks()) {
+            if (Objects.equals(itemStock.getItem().getName(), productName)) {
+                result.add(itemStock);
+            }
         }
         return result;
     }
 
     public Optional<ItemStock> getProductById(int id) {
-        // TODO:
+        for (ItemStock itemStock : getAllItemStocks()) {
+            if (itemStock.getItem().getId() == id) return Optional.of(itemStock);
+        }
         return Optional.empty();
     }
 
     public List<Shop> findShops(String shopName) {
         ArrayList<Shop> result = new ArrayList<>();
         for (Shop shop : getAllShops()) {
-            // TODO: find item
+            if (Objects.equals(shopName, shop.getName())) {
+                result.add(shop);
+            }
         }
         return result;
     }
 
-    public List<ItemStock> getAllItems() {
-        // TODO: get all item
-        return new ArrayList<>();
+    public List<ItemStock> getAllItemStocks() {
+        List<ItemStock> res = new ArrayList<>();
+        for (Shop shop : getAllShops()) {
+            res.addAll(shop.getStock());
+        }
+        return res;
     }
 
     public List<Shop> getAllShops() {
-        // TODO: get all shop
-        return new ArrayList<>();
+        List<Shop> res = new ArrayList<>();
+        for (Customer customer : customers.values()) {
+            Shop shop = customer.getOwnedShop();
+            if (shop != null)
+                res.add(shop);
+        }
+        return res;
     }
 
     public void shopAcceptOrder(Shop shop, List<Integer> orderIds) {
         for (Integer orderId : orderIds) {
             orders.stream()
                     .filter(order -> orderId == order.getId())
-                    .forEach(order -> {
-                        if (shop.equals(order.getShop())) order.setOrderState(OrderState.SHOP_ACCEPTED);
-                    });
+                    .forEach(shop::acceptOrder);
         }
+    }
+
+    public List<Order> getOrdersReadyToShip(Shipper shipper) {
+        return orders.stream()
+                .filter(order ->
+                        order.getOrderState().equals(OrderState.CREATED) || order.getOrderState().equals(OrderState.AT_WAREHOUSE)
+                )
+                .filter(order -> order.getLocation().city() == shipper.getAddress().city())
+                .toList();
+    }
+
+    public List<Order> getShippingOrders(Shipper shipper) {
+        return orders.stream()
+                .filter(order -> order.getOrderState() == OrderState.SHIPPING)
+                .filter(order -> order.getShipper() == shipper)
+                .toList();
     }
 
     public List<Order> getOrdersByShop(Shop shop) {
@@ -91,73 +115,81 @@ public final class ShopdeeSystem {
 
     public SystemResponse createOrder(Customer customer) {
         if (customer == null) return new SystemResponse(false, "Invalid customer when creating order");
-        Date now = new Date();
-        Cart cart = customer.releaseCart(); // get all items from cart then delete user cart
+//        Date now = new Date();
+        Cart cart;
+        try {
+            cart = customer.buy(); // get all items from cart then delete user cart
+        } catch (Error e) {
+            return new SystemResponse(false, "Not enough balance to make order");
+        }
 
         // list all shop from all items in the cart
         HashSet<Shop> allShopFromCart = new HashSet<>();
         cart.getItems().forEach(cartItem -> allShopFromCart.add(cartItem.getItemStock().getShop()));
 
         // create a list of orders corresponding to the shop
-        List<Order> orderList = new ArrayList<>();
+//        List<Order> orderList = new ArrayList<>();
         allShopFromCart.forEach(shop -> {
             OrderContent orderContent = OrderContent.filterFromCustomerCart(shop, cart);
-            orderList.add(new Order(customer, now, orderContent));
+            orders.add(shop.makeOrder(customer, orderContent));
         });
-
-        double totalCustomerPayment = orderList.stream().mapToDouble(order -> order.getContent().getTotalPrice()).sum();
-
-        if (customer.getBalance() < totalCustomerPayment)
-            return new SystemResponse(false, "Not enough balance to make order");
 
         // reduce the quantity in the shop when create order
-        cart.getItems().forEach(cartItem -> {
-            ItemStock itemStock = cartItem.getItemStock();
-            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
-        });
+//        cart.getItems().forEach(cartItem -> {
+//            ItemStock itemStock = cartItem.getItemStock();
+//            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
+//        });
 
-        customer.decreaseBalance(totalCustomerPayment);
-        orders.addAll(orderList);
-        // TODO: maybe save the order index to customer for faster order searching.
-        profit += totalCustomerPayment * PROFIT;
+//        orders.addAll(orderList);
+        profit += cart.getTotalPrice() * PROFIT;
         return new SystemResponse(true, "Order successfully created");
     }
 
-    public boolean shipperTakesOrder(Shipper shipper, int shippingOrderId) {
-//        if (shipper == null) return false;
-//
-//        ShippingOrder order = shippingOrder.stream()
-//                .filter(o -> o.getId() == shippingOrderId)
-//                .findFirst().orElse(null);
-//        if (order == null) return false;
-//        order.setShipper(shipper);
-//        return true;
+    public boolean shipperTakesOrder(Shipper shipper, int orderId) {
+        if (shipper == null) return false;
+
+        Order order = orders.stream()
+                .filter(o -> o.getId() == orderId)
+                .findFirst().orElse(null);
+        if (order != null && order.getLocation().city() == shipper.getAddress().city()) {
+            shipper.takesOrder(order);
+            return true;
+        }
         return false;
     }
 
-    public void shipperFinishesOrder(Shipper shipper, int shippingOrderId) {
-//        if (shipper == null) return;
-//        ShippingOrder order = shippingOrder.stream()
-//                .filter(o -> o.getId() == shippingOrderId)
-//                .findFirst().orElse(null);
-//        if (order == null) return;
-//        if (!order.getShipper().equals(shipper)) return;
-//
-//        shipper.addBalance(order.getContent().getTotalPrice() * SHIPPER_FEE);
-//        order.shipped();
+    public boolean shipperFinishesOrder(Shipper shipper, int orderId) {
+        if (shipper == null) return false;
+        Order order = orders.stream()
+                .filter(o -> o.getId() == orderId)
+                .findFirst().orElse(null);
+        if (order == null) return false;
+
+        double payAmount = order.getContent().getTotalPrice() * SHIPPER_FEE;
+        shipper.finishesOrder(order, payAmount);
+        profit -= payAmount;
+        return true;
     }
 
     public void userConfirmOrder(Customer customer, Order order) {
-//        if (customer == null || order == null) return;
-//        if (!order.isShipped()) return;
-//        shippingOrder.remove(order);
-//        if (order.getCustomer().equals(customer)) {
-//            // Pay money to shop
-//            for (CartItem cartItem : order.getContent().getItems()) {
-//                Shop shop = cartItem.getItemStock().getShop();
-//                shop.setRevenue(shop.getRevenue() + order.getContent().getTotalPrice());
-//            }
-//        }
+        if (customer == null || order == null) return;
+        if (customer.confirmOrder(order)) {
+            // If the confirmation succeed, pay money to shop
+            Shop shop = order.getShop();
+            shop.increaseRevenue(order.getContent().getTotalPrice() * SHOP_PORTION);
+        } else {
+            // TODO: process the invalid order that cannot confirm
+        }
+    }
+
+    public void userConfirmOrder(Customer customer, int orderId) {
+        if (customer == null) return;
+
+        Order order = orders.stream()
+                .filter(o -> o.getId() == orderId)
+                .findFirst().orElse(null);
+
+        userConfirmOrder(customer, order);
     }
 
     public boolean registerCustomer(String username, String password, String name, String phone, Address address) {
@@ -192,5 +224,9 @@ public final class ShopdeeSystem {
         if (shipper == null) return Optional.empty();
         if (shipper.getPassword().equals(password)) return Optional.of(shipper);
         return Optional.empty();
+    }
+
+    public void shopAddItem(Shop shop, String itemName, double price, int quantity) {
+        shop.addItem(new ItemStock(new Item(itemName), price, quantity, shop));
     }
 }

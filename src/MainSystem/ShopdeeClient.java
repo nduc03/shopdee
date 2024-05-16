@@ -48,34 +48,35 @@ public final class ShopdeeClient {
                     } else if (currentUser.getRole().equals(UserRole.Customer)) {
                         displayCustomerMenu();
                     } else {
-                        displayShipperMenu(shippers.get(username));
+                        displayShipperMenu();
                     }
                     break;
                 case "2":
-                    // Gọi hàm để xử lý đăng ký
-                    UserRole role = null;
-                    System.out.print("Nhập tài khoản: ");
-                    username = scanner.nextLine();
-                    System.out.print("Nhập password: ");
-                    password = scanner.nextLine();
-                    if (checkAccount(username, password) == true) {
-                        System.out.println("Chọn role của bạn: ");
-                        System.out.println("1. Khách hàng");
-                        System.out.println("2. Shipper");
-                        int select = scanner.nextInt();
-                        scanner.nextLine();
-                        switch (select) {
-                            case 1:
-                                role = role.CUSTOMER;
-                                displayRegister(role, username, password);
-                                break;
-                            case 2:
-                                role = role.SHIPPER;
-                                displayRegister(role, username, password);
-                                break;
-                            default:
-                                System.out.println("INVALID");
-                        }
+                    username = Utils.promptInput("Enter your username: ");
+                    password = Utils.promptInput("Enter your password: ");
+                    System.out.println("Choose your role: ");
+                    System.out.println("1. Khách hàng");
+                    System.out.println("2. Shipper");
+                    int roleChoice = Utils.promptIntInput("Option: ").orElse(-1);
+                    if (roleChoice != 1 && roleChoice != 2) {
+                        System.out.println("Invalid choice. Try again.");
+                        continue;
+                    }
+                    String name = Utils.promptInput("Enter your name: ");
+                    String phone = Utils.promptInput("Enter your phone number: ");
+                    Address address = askForUpdateAddress().orElse(null);
+                    if (address == null) {
+                        System.out.println("Invalid input. Try again.");
+                        continue;
+                    }
+                    if (roleChoice == 1) {
+                        if (system.registerCustomer(username, password, name, phone, address)) {
+                            System.out.println("Register success!");
+                        } else System.out.println("Register failed!");
+                    } else {
+                        if (system.registerShipper(username, password, name, phone, address)) {
+                            System.out.println("Register success!");
+                        } else System.out.println("Register failed!");
                     }
                     break;
                 case "3":
@@ -94,19 +95,6 @@ public final class ShopdeeClient {
         } else {
             currentUser = system.authorizeCustomer(username, password).orElse(null);
         }
-    }
-
-    public static void register(boolean isShipper,
-                                String username,
-                                String password,
-                                String name,
-                                String phone,
-                                Address address) {
-
-    }
-
-    public static void logout() {
-
     }
 
     private static void displayCustomerMenu() {
@@ -155,8 +143,22 @@ public final class ShopdeeClient {
                     }
                 case "3":
                     System.out.println("Your orders:");
-                    for (Order order : system.getCustomerOrders(c)) {
+                    List<Order> customerOrders = system.getCustomerOrders(c);
+                    for (Order order : customerOrders) {
                         System.out.println(order.toString());
+                    }
+                    String input = Utils.promptInput("Enter order id to confirm or type 'all' to confirm all: ");
+                    if (input.equalsIgnoreCase("all")) {
+                        for (Order order : customerOrders) {
+                            system.userConfirmOrder(c, order);
+                        }
+                    } else {
+                        try {
+                            int cartId = Integer.parseInt(input);
+                            system.userConfirmOrder(c, cartId);
+                        } catch (NumberFormatException e) {
+                            System.out.println("INVALID");
+                        }
                     }
                     break;
                 case "4":
@@ -207,13 +209,13 @@ public final class ShopdeeClient {
 
         switch (choice) {
             case 1:
-                receiveOrder(s);
+                takesOrder();
                 break;
             case 2:
-                confirmOrder(s);
+                shipperFinishesOrder();
                 break;
             case 3:
-                viewShipperTask(s);
+                viewShipperTask();
             case 4:
                 updateProfile();
                 break;
@@ -225,6 +227,40 @@ public final class ShopdeeClient {
                 break;
             default:
                 System.out.println("INVALID");
+        }
+    }
+
+    private static void takesOrder() {
+        Shipper s = (Shipper) currentUser;
+        System.out.println("----------Take order menu---------");
+
+        for (Order order : system.getOrdersReadyToShip(s)) {
+            System.out.println(order.toString());
+        }
+        do {
+            int id = Utils.promptIntInput("Enter order id you want to take: ").orElse(-1);
+            if (!system.shipperTakesOrder(s, id)) System.out.println("Invalid");
+        } while (Utils.promptInput("Continue? (y/n) ").equalsIgnoreCase("y"));
+    }
+
+    private static void shipperFinishesOrder() {
+        Shipper s = (Shipper) currentUser;
+        System.out.println("----------Finish order menu-----------");
+
+        for (Order order : system.getShippingOrders(s)) {
+            System.out.println(order.toString());
+        }
+        do {
+            int id = Utils.promptIntInput("Enter order id you want to finish: ").orElse(-1);
+            if (!system.shipperTakesOrder(s, id)) System.out.println("Invalid");
+        } while (Utils.promptInput("Continue? (y/n) ").equalsIgnoreCase("y"));
+    }
+
+    private static void viewShipperTask() {
+        Shipper s = (Shipper) currentUser;
+        System.out.println("------Shipping order--------");
+        for (Order order : system.getShippingOrders(s)) {
+            System.out.println(order.toString());
         }
     }
 
@@ -291,11 +327,24 @@ public final class ShopdeeClient {
     }
 
     private static void addItemToShop(Shop shop) {
-        // todo
+        String itemName = Utils.promptInput("Enter item name: ");
+        double price = Utils.promptIntInput("Enter item price: ").orElse(-1);
+        if (price <= 0.0) System.out.println("Invalid price. Stop adding.");
+        int quantity = Utils.promptIntInput("Enter item quantity: ").orElse(-1);
+        if (quantity <= 0) System.out.println("Invalid quantity. Stop adding.");
+        system.shopAddItem(shop, itemName, price, quantity);
     }
 
     private static void deleteItemFromShop(Shop shop) {
-        // todo
+        System.out.println("List of shop stock: ");
+        for (ItemStock itemStock : shop.getStock()) {
+            System.out.println(itemStock.toString());
+        }
+        int itemId = Utils.promptIntInput("Enter item id to remove: ").orElse(-1);
+        if (shop.removeItem(itemId))
+            System.out.println("Successfully removed item.");
+        else
+            System.out.println("Failed to remove item.");
     }
 
     private static void acceptOrderByShop(Shop shop) {
@@ -381,7 +430,7 @@ public final class ShopdeeClient {
             System.out.println("INVALID");
             return;
         }
-        currentUser.decreaseBalance(amount);
+        currentUser.withdraw(amount);
         System.out.println("Withdraw successfully");
     }
 
@@ -445,10 +494,8 @@ public final class ShopdeeClient {
                 System.out.println("Invalid choice. The address will not be updated.");
                 return Optional.empty();
         }
-        String district = Utils.promptInput("Enter district: ");
-        String street = Utils.promptInput("Enter street: ");
         String addressLine = Utils.promptInput("Enter address line: ");
-        return Optional.of(new Address(addressLine, street, district, city));
+        return Optional.of(new Address(addressLine, city));
     }
 
     private static void viewCart() {
