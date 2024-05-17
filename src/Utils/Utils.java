@@ -16,7 +16,7 @@ public final class Utils {
 
     public static String promptInput(String prompt) {
         System.out.print(prompt);
-        return sc.nextLine();
+        return sc.nextLine().trim();
     }
 
     public static Optional<Integer> promptIntInput(String prompt) {
@@ -26,6 +26,7 @@ public final class Utils {
             sc.nextLine();
             return Optional.of(res);
         } catch (InputMismatchException e) {
+            sc.nextLine();
             return Optional.empty();
         }
     }
@@ -37,6 +38,7 @@ public final class Utils {
             sc.nextLine();
             return Optional.of(res);
         } catch (InputMismatchException e) {
+            sc.nextLine();
             return Optional.empty();
         }
     }

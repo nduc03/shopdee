@@ -5,33 +5,63 @@ import Order.Order;
 import Order.OrderState;
 import User.Customer;
 import Utils.Address;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Shop {
     private final int id;
+    @NotNull
     private String name;
     private final List<ItemStock> stock;
     private double revenue;
+    @NotNull
     private Address address;
 
-    private static int currentId = 0;
+    private static int currentId = 40_000; // range 40_000 - 49_999
 
-    public Shop(String name, Address address) {
-        id = ++currentId;
+    @JsonCreator
+    private Shop(
+            @JsonProperty("id") int id,
+            @JsonProperty("name") @NotNull String name,
+            @JsonProperty("stock") List<ItemStock> stock,
+            @JsonProperty("revenue") double revenue,
+            @JsonProperty("address") @NotNull Address address
+    ){
+        this.id = id;
+        this.name = name;
+        this.stock = stock;
+        this.revenue = revenue;
+        this.address = address;
+        if (id > currentId) currentId = id;
+    }
+
+    public Shop(@NotNull String name, @NotNull Address address) {
+        id = currentId++;
+        if ((currentId - 40_000) % 100_000 == 0) {
+            currentId += 100_000 - 40_000;
+        }
         this.name = name;
         this.revenue = 0.0;
         this.address = address;
         stock = new ArrayList<>();
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
@@ -47,36 +77,36 @@ public class Shop {
         return revenue;
     }
 
-    public Address getAddress() {
+    public @NotNull Address getAddress() {
         return address;
     }
 
-    public void setAddress(Address address) {
+    public void setAddress(@NotNull Address address) {
         this.address = address;
     }
 
     public void setRevenue(double revenue) {
-        this.revenue = revenue;
+        this.revenue = Math.max(revenue, 0.0);
     }
 
     public void increaseRevenue(double amount) {
         revenue += amount;
     }
 
-    public void withdraw(Customer customer, double amount) {
+    public void withdraw(@NotNull Customer customer, double amount) {
         if (customer.getOwnedShop().equals(this)) { // check customer to ensure only shop owner can withdraw
             revenue -= amount;
             customer.addBalance(amount);
         }
     }
 
-    public void addItem(ItemStock itemStock) {
+    public void addItem(@NotNull ItemStock itemStock) {
         stock.add(itemStock);
     }
 
     public boolean removeItem(int itemId) {
         for (int i = 0; i < stock.size(); i++) {
-            if (stock.get(i).getItem().getId() == itemId) {
+            if (stock.get(i).getId() == itemId) {
                 stock.remove(i);
                 return true;
             }

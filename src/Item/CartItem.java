@@ -1,21 +1,45 @@
 package Item;
 
+import com.fasterxml.jackson.annotation.*;
+
 import java.util.Objects;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class CartItem {
     private final int id;
     private int quantity;
+    @JsonIdentityReference(alwaysAsId = true)
     private final ItemStock itemStock;
 
-    private static int currentId = 0;
+    private static int currentId = 50_000; // id range: 50_000 -> 59_999
+
+    @JsonCreator
+    private CartItem(
+            @JsonProperty("id") int id,
+            @JsonProperty("quantity") int quantity,
+            @JsonProperty("itemStock") ItemStock itemStock
+    ) {
+        this.id = id;
+        this.quantity = quantity;
+        this.itemStock = itemStock;
+        if (id > currentId) {
+            currentId = id;
+        }
+    }
 
     public CartItem(int quantity, ItemStock itemStock) {
-        id = ++currentId;
         if (quantity <= 0 || quantity > itemStock.getQuantity()) {
             throw new IllegalArgumentException("Invalid quantity when creating a cart item");
         }
         this.quantity = quantity;
         this.itemStock = itemStock;
+        id = currentId++;
+        if (currentId % 50_000 == 0) {
+            currentId += 100_000 - 10_000;
+        }
     }
 
     public int getId() {
@@ -35,7 +59,7 @@ public class CartItem {
     }
 
     public void setQuantity(int quantity) {
-        this.quantity = quantity;
+        this.quantity = Math.min(quantity, itemStock.getQuantity());
     }
 
     @Override
@@ -52,10 +76,12 @@ public class CartItem {
 
     @Override
     public String toString() {
-        return "CartItem" +
-                "\nid=" + id +
-                "\nquantity=" + quantity +
-                "\nitemStock=" + itemStock.toString() +
+        return "Cart Item" +
+                "\nid: " + id +
+                "\nquantity: " + quantity +
+                "\nitem name: " + itemStock.getItem().getName() +
+                "\nitem price: " + itemStock.getPrice() +
+                "\nitem from shop: " + itemStock.getShop().getName() +
                 '\n';
     }
 }

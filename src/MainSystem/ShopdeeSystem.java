@@ -7,9 +7,7 @@ import Order.Order;
 import Order.OrderContent;
 import Order.OrderState;
 import Shop.Shop;
-import User.Customer;
-import User.Shipper;
-import User.User;
+import User.*;
 import Utils.Address;
 
 import java.util.*;
@@ -17,31 +15,32 @@ import java.util.*;
 public final class ShopdeeSystem {
     private static final double SHIPPER_FEE = 5000.0;
     private static final double PROFIT = 0.09;
-    private final static double SHOP_PORTION = 1.0 - PROFIT;
-
-    private static Hashtable<String, Customer> customers;
-    private static Hashtable<String, Shipper> shippers;
+    private static final double SHOP_PORTION = 1.0 - PROFIT;
+    private static Hashtable<String, User> users;
     private static double profit = 0.0;
-    private static final List<Order> orders = new ArrayList<>();
+    private static List<Order> orders;
+
+//    private static Hashtable<String, Shipper> shippers;
 
     private ShopdeeSystem() {
-        customers = new Hashtable<>();
-        shippers = new Hashtable<>();
+        users = new Hashtable<>();
+        orders = new ArrayList<>();
+//        shippers = new Hashtable<>();
         // TODO: Đọc file -> khởi tạo mọi thứ từ file
     }
 
-    private static final class ShopdeeSystemHolder {
+    private static final class SingletonHolder {
         private static final ShopdeeSystem instance = new ShopdeeSystem();
     }
 
     public static ShopdeeSystem getInstance() {
-        return ShopdeeSystemHolder.instance;
+        return SingletonHolder.instance;
     }
 
     public List<ItemStock> findProducts(String productName) {
         ArrayList<ItemStock> result = new ArrayList<>();
         for (ItemStock itemStock : getAllItemStocks()) {
-            if (Objects.equals(itemStock.getItem().getName(), productName)) {
+            if (itemStock.getItem().getName().contains(productName)) {
                 result.add(itemStock);
             }
         }
@@ -50,7 +49,7 @@ public final class ShopdeeSystem {
 
     public Optional<ItemStock> getProductById(int id) {
         for (ItemStock itemStock : getAllItemStocks()) {
-            if (itemStock.getItem().getId() == id) return Optional.of(itemStock);
+            if (itemStock.getId() == id) return Optional.of(itemStock);
         }
         return Optional.empty();
     }
@@ -58,7 +57,7 @@ public final class ShopdeeSystem {
     public List<Shop> findShops(String shopName) {
         ArrayList<Shop> result = new ArrayList<>();
         for (Shop shop : getAllShops()) {
-            if (Objects.equals(shopName, shop.getName())) {
+            if (shop.getName().contains(shopName)) {
                 result.add(shop);
             }
         }
@@ -75,7 +74,9 @@ public final class ShopdeeSystem {
 
     public List<Shop> getAllShops() {
         List<Shop> res = new ArrayList<>();
-        for (Customer customer : customers.values()) {
+        for (User user : users.values()) {
+            if (user.getRole() != UserRole.Customer) continue;
+            Customer customer = (Customer) user;
             Shop shop = customer.getOwnedShop();
             if (shop != null)
                 res.add(shop);
@@ -94,7 +95,7 @@ public final class ShopdeeSystem {
     public List<Order> getOrdersReadyToShip(Shipper shipper) {
         return orders.stream()
                 .filter(order ->
-                        order.getOrderState().equals(OrderState.CREATED) || order.getOrderState().equals(OrderState.AT_WAREHOUSE)
+                        order.getOrderState().equals(OrderState.SHOP_ACCEPTED) || order.getOrderState().equals(OrderState.AT_WAREHOUSE)
                 )
                 .filter(order -> order.getLocation().city() == shipper.getAddress().city())
                 .toList();
@@ -120,14 +121,16 @@ public final class ShopdeeSystem {
     }
 
     public SystemResponse createOrder(Customer customer) {
-        if (customer == null) return new SystemResponse(false, "Invalid customer when creating order");
+        if (customer == null) return new SystemResponse(false, "Invalid customer when creating order.");
 //        Date now = new Date();
         Cart cart;
         try {
             cart = customer.buy(); // get all items from cart then delete user cart
         } catch (Error e) {
-            return new SystemResponse(false, "Not enough balance to make order");
+            return new SystemResponse(false, "Not enough balance to make order.");
         }
+
+        if (cart.isEmpty()) return new SystemResponse(false, "Empty cart.");
 
         // list all shop from all items in the cart
         HashSet<Shop> allShopFromCart = new HashSet<>();
@@ -148,7 +151,7 @@ public final class ShopdeeSystem {
 
 //        orders.addAll(orderList);
         profit += cart.getTotalPrice() * PROFIT;
-        return new SystemResponse(true, "Order successfully created");
+        return new SystemResponse(true, "Order successfully created.");
     }
 
     public boolean shipperTakesOrder(Shipper shipper, int orderId) {
@@ -171,7 +174,7 @@ public final class ShopdeeSystem {
                 .findFirst().orElse(null);
         if (order == null) return false;
 
-        double payAmount = order.getContent().getTotalPrice() * SHIPPER_FEE;
+        double payAmount = SHIPPER_FEE;
         shipper.finishesOrder(order, payAmount);
         profit -= payAmount;
         return true;
@@ -200,39 +203,47 @@ public final class ShopdeeSystem {
 
     public boolean registerCustomer(String username, String password, String name, String phone, Address address) {
         if (username == null || password == null) return false;
-        if (customers.containsKey(username)) {
+        if (users.containsKey(username)) {
             return false;
         }
-        customers.put(username, new Customer(username, password, name, phone, address));
+        users.put(username, new Customer(username, password, name, phone, address));
         return true;
     }
 
     public boolean registerShipper(String username, String password, String name, String phone, Address address) {
         if (username == null || password == null) return false;
-        if (shippers.containsKey(username)) {
+        if (users.containsKey(username)) {
             return false;
         }
-        shippers.put(username, new Shipper(username, password, name, phone, address));
+        users.put(username, new Shipper(username, password, name, phone, address));
         return true;
     }
 
-    public Optional<User> authorizeCustomer(String username, String password) {
+    public Optional<User> authorizeUser(String username, String password) {
         if (username == null || password == null) return Optional.empty();
-        Customer customer = customers.get(username);
+        User customer = users.get(username);
         if (customer == null) return Optional.empty();
         if (customer.getPassword().equals(password)) return Optional.of(customer);
         return Optional.empty();
     }
 
-    public Optional<User> authorizeShipper(String username, String password) {
-        if (username == null || password == null) return Optional.empty();
-        Shipper shipper = shippers.get(username);
-        if (shipper == null) return Optional.empty();
-        if (shipper.getPassword().equals(password)) return Optional.of(shipper);
-        return Optional.empty();
-    }
+//    public Optional<User> authorizeShipper(String username, String password) {
+//        if (username == null || password == null) return Optional.empty();
+//        Shipper shipper = shippers.get(username);
+//        if (shipper == null) return Optional.empty();
+//        if (shipper.getPassword().equals(password)) return Optional.of(shipper);
+//        return Optional.empty();
+//    }
 
     public void shopAddItem(Shop shop, String itemName, double price, int quantity) {
         shop.addItem(new ItemStock(new Item(itemName), price, quantity, shop));
     }
+
+    public boolean existsUser(String username) {
+        return users.containsKey(username);
+    }
+
+//    public boolean existsShipper(String username) {
+//        return shippers.containsKey(username);
+//    }
 }

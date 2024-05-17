@@ -2,22 +2,60 @@ package User;
 
 import Utils.Address;
 import Utils.Utils;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 public abstract class User {
     private final int id;
     private final String username;
+    @NotNull
     private String password;
+    @NotNull
     private String name;
     private double balance;
+    @NotNull
     private String phone;
+    @NotNull
     private Address address;
+    @NotNull
     private final UserRole role;
 
-    protected static int currentId = 1;
+    protected static int currentId = 0; // id range from 1 - 9999, 100_000 -> 109_999, ...
 
-    User(String username, String password, String name, String phone, Address address, UserRole role) {
+    // Constructor for deserialize json in child classes
+    User(
+            int id,
+            String username,
+            @NotNull String password,
+            @NotNull String name,
+            double balance,
+            @NotNull String phone,
+            @NotNull Address address,
+            @NotNull UserRole role
+    ) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.balance = balance;
+        this.phone = phone;
+        this.address = address;
+        this.role = role;
+        this.id = id;
+        if (id > currentId) {
+            currentId = id;
+        }
+    }
+
+    // Normal constructor
+    User(
+            String username,
+            @NotNull String password,
+            @NotNull String name,
+            @NotNull String phone,
+            @NotNull Address address,
+            @NotNull UserRole role
+    ) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -25,14 +63,17 @@ public abstract class User {
         this.phone = phone;
         this.address = address;
         this.role = role;
-        this.id = currentId++;
+        if ((currentId + 1) % 10000 == 0) {
+            currentId += 100_000 - 9999;
+        }
+        this.id = ++currentId;
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotNull String name) {
         this.name = name;
     }
 
@@ -44,11 +85,14 @@ public abstract class User {
         return username;
     }
 
-    public String getPassword() {
+    public @NotNull String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
         this.password = password;
     }
 
@@ -56,23 +100,29 @@ public abstract class User {
         return balance;
     }
 
-    public String getPhone() {
+    public @NotNull String getPhone() {
         return phone;
     }
 
     public void setPhone(String phone) {
+        if (phone == null || phone.isEmpty()) {
+            throw new IllegalArgumentException("Phone number cannot be null or empty");
+        }
         this.phone = phone;
     }
 
-    public Address getAddress() {
+    public @NotNull Address getAddress() {
         return address;
     }
 
     public void setAddress(Address address) {
+        if (address == null) {
+            throw new IllegalArgumentException("Address cannot be null");
+        }
         this.address = address;
     }
 
-    public UserRole getRole() {
+    public @NotNull UserRole getRole() {
         return role;
     }
 
@@ -100,5 +150,14 @@ public abstract class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, username);
+    }
+
+    @Override
+    public String toString() {
+        return  name + "'s info:\n" +
+                "Username: '" + username + '\'' +
+                "\nBalance: " + balance +
+                "\nPhone: '" + phone + '\'' +
+                "\nAddress: " + address;
     }
 }

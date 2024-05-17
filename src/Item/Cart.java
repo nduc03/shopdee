@@ -1,11 +1,21 @@
 package Item;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
 public class Cart {
+    @NotNull
     private final HashSet<CartItem> items;
+
+    @JsonCreator
+    protected Cart(@JsonProperty("items") @NotNull HashSet<CartItem> items) {
+        this.items = items;
+    }
 
     public Cart() {
         items = new HashSet<>();
@@ -17,25 +27,29 @@ public class Cart {
     }
 
     public void addToCart(CartItem cartItem) {
-        if (cartItem != null && items.contains(cartItem)) {
-            items.add(cartItem);
+        if (cartItem != null) {
+            if (items.contains(cartItem)) {
+                this.items.stream()
+                        .filter(item -> cartItem.getId() == item.getId()).findFirst()
+                        .ifPresent(item -> item.setQuantity(cartItem.getQuantity() + item.getQuantity()));
+            } else
+                items.add(cartItem);
         }
     }
 
-    public void addToCart(int cartId, int quantity) {
-        if (quantity < 0) return;
-        this.items.stream()
-                .filter(cartItem -> cartItem.getId() == cartId).findFirst()
-                .ifPresent(cartItem -> cartItem.setQuantity(cartItem.getQuantity() + quantity));
-    }
+//    public void addToCart(int cartId, int quantity) {
+//        if (quantity < 0) return;
+//        this.items.stream()
+//                .filter(cartItem -> cartItem.getId() == cartId).findFirst()
+//                .ifPresent(cartItem -> cartItem.setQuantity(cartItem.getQuantity() + quantity));
+//    }
 
     public void removeFromCart(int cartId, int quantity) {
         if (quantity < 0) return;
         this.items.stream().filter(cart -> cart.getId() == cartId).findFirst().ifPresent(cartItem -> {
             if (cartItem.getQuantity() <= quantity) {
                 this.items.remove(cartItem);
-            }
-            else {
+            } else {
                 cartItem.setQuantity(cartItem.getQuantity() - quantity);
                 if (cartItem.getQuantity() <= 0) {
                     this.items.remove(cartItem);
@@ -56,7 +70,7 @@ public class Cart {
         return total;
     }
 
-    public HashSet<CartItem> getItems() {
+    public @NotNull HashSet<CartItem> getItems() {
         return items;
     }
 

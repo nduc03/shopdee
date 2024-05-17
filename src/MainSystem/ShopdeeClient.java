@@ -14,13 +14,11 @@ import Utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Scanner;
 
 public final class ShopdeeClient {
 
     private static User currentUser = null;
     private static final ShopdeeSystem system = ShopdeeSystem.getInstance();
-    private static final Scanner scanner = new Scanner(System.in);
 
     private ShopdeeClient() {
     }
@@ -38,14 +36,12 @@ public final class ShopdeeClient {
             String choice = Utils.promptInput("Enter your choice: ");
             switch (choice) {
                 case "1":
-                    String shipperYesno = Utils.promptInput("Are you shipper? (y/n) ");
-                    boolean isShipper = shipperYesno.equalsIgnoreCase("y");
-                    String role = (isShipper) ? "shipper" : "customer";
-                    username = Utils.promptInput(String.format("Enter your %s username: ", role));
+                    System.out.println("------------Login menu--------------");
+                    username = Utils.promptInput("Enter your username: ");
                     password = Utils.promptInput("Enter password: ");
-                    login(isShipper, username, password);
+                    login(username, password);
                     if (currentUser == null) {
-                        System.out.println("Cannot find account.");
+                        System.out.println("Cannot find account or wrong password.");
                     } else if (currentUser.getRole().equals(UserRole.Customer)) {
                         displayCustomerMenu();
                     } else {
@@ -53,32 +49,39 @@ public final class ShopdeeClient {
                     }
                     break;
                 case "2":
-                    username = Utils.promptInput("Enter your username: ");
-                    password = Utils.promptInput("Enter your password: ");
-                    System.out.println("Choose your role: ");
-                    System.out.println("1. Customer");
-                    System.out.println("2. Shipper");
-                    int roleChoice = Utils.promptIntInput("Option: ").orElse(-1);
-                    if (roleChoice != 1 && roleChoice != 2) {
-                        System.out.println("Invalid choice. Try again.");
-                        continue;
-                    }
-                    String name = Utils.promptInput("Enter your name: ");
-                    String phone = Utils.promptInput("Enter your phone number: ");
-                    Address address = askForUpdateAddress().orElse(null);
-                    if (address == null) {
-                        System.out.println("Invalid input. Try again.");
-                        continue;
-                    }
-                    if (roleChoice == 1) {
-                        if (system.registerCustomer(username, password, name, phone, address)) {
-                            System.out.println("Register success!");
-                        } else System.out.println("Register failed!");
-                    } else {
-                        if (system.registerShipper(username, password, name, phone, address)) {
-                            System.out.println("Register success!");
-                        } else System.out.println("Register failed!");
-                    }
+//                    System.out.println("-------Register menu----------");
+//                    System.out.println("Choose your role: ");
+//                    System.out.println("1. Customer");
+//                    System.out.println("2. Shipper");
+//                    int roleChoice = Utils.promptIntInput("Option: ").orElse(-1);
+//                    if (roleChoice != 1 && roleChoice != 2) {
+//                        System.out.println("Invalid choice. Stop register.");
+//                        continue;
+//                    }
+//                    while (true) {
+//                        username = Utils.promptInput("Enter your username: ");
+//                        if (system.existsUser(username)) {
+//                            System.out.println("This username existed. Try again!");
+//                        } else break;
+//                    }
+//                    password = Utils.promptInput("Enter your password: ");
+//                    String name = Utils.promptInput("Enter your name: ");
+//                    String phone = Utils.promptInput("Enter your phone number: ");
+//                    Address address = askForUpdateAddress().orElse(null);
+//                    if (address == null) {
+//                        System.out.println("Invalid input. Stop register.");
+//                        continue;
+//                    }
+//                    if (roleChoice == 1) {
+//                        if (system.registerCustomer(username, password, name, phone, address)) {
+//                            System.out.println("Register success!");
+//                        } else System.out.println("Register failed!");
+//                    } else {
+//                        if (system.registerShipper(username, password, name, phone, address)) {
+//                            System.out.println("Register success!");
+//                        } else System.out.println("Register failed!");
+//                    }
+                    displayRegisterMenu();
                     break;
                 case "3":
                     System.out.println("Exit program...");
@@ -90,11 +93,44 @@ public final class ShopdeeClient {
     }
 
     // Current user will be set to null if account is not found
-    private static void login(boolean isShipper, String username, String password) {
-        if (isShipper) {
-            currentUser = system.authorizeShipper(username, password).orElse(null);
+    private static void login(String username, String password) {
+        currentUser = system.authorizeUser(username, password).orElse(null);
+    }
+
+    private static void displayRegisterMenu() {
+        String username;
+        String password;
+        System.out.println("-------Register menu----------");
+        System.out.println("Choose your role: ");
+        System.out.println("1. Customer");
+        System.out.println("2. Shipper");
+        int roleChoice = Utils.promptIntInput("Option: ").orElse(-1);
+        if (roleChoice != 1 && roleChoice != 2) {
+            System.out.println("Invalid choice. Stop register.");
+            return;
+        }
+        while (true) {
+            username = Utils.promptInput("Enter your username: ");
+            if (system.existsUser(username)) {
+                System.out.println("This username existed. Try again!");
+            } else break;
+        }
+        password = Utils.promptInput("Enter your password: ");
+        String name = Utils.promptInput("Enter your name: ");
+        String phone = Utils.promptInput("Enter your phone number: ");
+        Address address = askForUpdateAddress().orElse(null);
+        if (address == null) {
+            System.out.println("Invalid input. Stop register.");
+            return;
+        }
+        if (roleChoice == 1) {
+            if (system.registerCustomer(username, password, name, phone, address)) {
+                System.out.println("Register success!");
+            } else System.out.println("Register failed!");
         } else {
-            currentUser = system.authorizeCustomer(username, password).orElse(null);
+            if (system.registerShipper(username, password, name, phone, address)) {
+                System.out.println("Register success!");
+            } else System.out.println("Register failed!");
         }
     }
 
@@ -107,7 +143,7 @@ public final class ShopdeeClient {
         while (true) {
             System.out.println("========= Customer menu =========");
             System.out.println("Hello " + currentUser.getName() + "!");
-            System.out.println("1. Update Profile");
+            System.out.println("1. View/Update Profile");
             System.out.println("2. Buy/view your cart");
             System.out.println("3. View orders");
             System.out.println("4. Your shop");
@@ -147,10 +183,16 @@ public final class ShopdeeClient {
                 case "3":
                     System.out.println("Your orders:");
                     List<Order> customerOrders = system.getCustomerOrders(c);
+                    if (customerOrders.isEmpty()) {
+                        System.out.println("Your don't have any order.");
+                        continue;
+                    }
                     for (Order order : customerOrders) {
                         System.out.println(order.toString());
                     }
-                    String input = Utils.promptInput("Enter order id to confirm or type 'all' to confirm all: ");
+                    String input =
+                            Utils.promptInput("Enter order id to confirm or type 'all' to confirm all or 'exit' to exit: ");
+                    if (input.equalsIgnoreCase("exit")) continue;
                     if (input.equalsIgnoreCase("all")) {
                         for (Order order : customerOrders) {
                             system.userConfirmOrder(c, order);
@@ -196,37 +238,40 @@ public final class ShopdeeClient {
             System.out.println("Error! current user is not Customer");
             return;
         }
-        System.out.println("- Balance: " + s.getBalance());
-        System.out.println("========= Shipper menu =========");
-        System.out.println("Hello " + currentUser.getName() + "!");
-        System.out.println("1. Receive order");
-        System.out.println("2. Confirm order");
-        System.out.println("3. View task");
-        System.out.println("4. Update Profile");
-        System.out.println("5. Withdraw");
-        System.out.println("6. Log out");
+        while (true) {
+            System.out.println("========= Shipper menu =========");
+            System.out.println("Hello " + currentUser.getName() + "!");
+            System.out.println("Your balance: " + s.getBalance());
+            System.out.println("1. Receive order");
+            System.out.println("2. Confirm order");
+            System.out.println("3. View task");
+            System.out.println("4. View/Update Profile");
+            System.out.println("5. Withdraw");
+            System.out.println("6. Log out");
 
-        int choice = Utils.promptIntInput("Enter your choice").orElse(-1);
+            int choice = Utils.promptIntInput("Enter your choice: ").orElse(-1);
 
-        switch (choice) {
-            case 1:
-                takesOrder();
-                break;
-            case 2:
-                shipperFinishesOrder();
-                break;
-            case 3:
-                viewShipperTask();
-            case 4:
-                updateProfile();
-                break;
-            case 5:
-                withdraw();
-                break;
-            case 6:
-                break;
-            default:
-                System.out.println("INVALID");
+            switch (choice) {
+                case 1:
+                    takesOrder();
+                    break;
+                case 2:
+                    shipperFinishesOrder();
+                    break;
+                case 3:
+                    viewShipperTask();
+                    break;
+                case 4:
+                    updateProfile();
+                    break;
+                case 5:
+                    withdraw();
+                    break;
+                case 6:
+                    return;
+                default:
+                    System.out.println("INVALID");
+            }
         }
     }
 
@@ -234,7 +279,14 @@ public final class ShopdeeClient {
         Shipper s = (Shipper) currentUser;
         System.out.println("----------Take order menu---------");
 
-        for (Order order : system.getOrdersReadyToShip(s)) {
+        List<Order> orders = system.getOrdersReadyToShip(s);
+
+        if (orders.isEmpty()) {
+            System.out.println("There is no order nearby to ship");
+            return;
+        }
+
+        for (Order order : orders) {
             System.out.println(order.toString());
         }
         do {
@@ -247,12 +299,18 @@ public final class ShopdeeClient {
         Shipper s = (Shipper) currentUser;
         System.out.println("----------Finish order menu-----------");
 
-        for (Order order : system.getShippingOrders(s)) {
+        List<Order> orders = system.getShippingOrders(s);
+
+        if (orders.isEmpty()) {
+            System.out.println("You did not take any order.");
+            return;
+        }
+        for (Order order : orders) {
             System.out.println(order.toString());
         }
         do {
             int id = Utils.promptIntInput("Enter order id you want to finish: ").orElse(-1);
-            if (!system.shipperTakesOrder(s, id)) System.out.println("Invalid");
+            if (!system.shipperFinishesOrder(s, id)) System.out.println("Invalid");
         } while (Utils.promptInput("Continue? (y/n) ").equalsIgnoreCase("y"));
     }
 
@@ -283,44 +341,48 @@ public final class ShopdeeClient {
 
     private static void displayShopMenu() {
         Customer c = (Customer) currentUser;
-        System.out.println("- Revenue: " + c.getOwnedShop().getRevenue());
-        System.out.println("========= Shop menu =========");
-        System.out.println("1. Change Shop information");
-        System.out.println("2. Add/Delete item");
-        System.out.println("3. Take Orders");
-        System.out.println("4. Transfer money to account");
+        while (true) {
+            System.out.println("========= Shop menu =========");
+            System.out.println("Your shop's revenue: " + c.getOwnedShop().getRevenue());
+            System.out.println("1. Change Shop information");
+            System.out.println("2. Add/Delete item");
+            System.out.println("3. Take Orders");
+            System.out.println("4. Transfer money to account");
+            System.out.println("Other key to exit.");
 
-        String choice = Utils.promptInput("Enter your choice: ");
+            String choice = Utils.promptInput("Enter your choice: ");
 
-        switch (choice) {
-            case "1":
-                changeShopInfo(c.getOwnedShop());
-                break;
-            case "2":
-                System.out.println("1. Add item");
-                System.out.println("2. Delete item");
-                int select = Utils.promptIntInput("Enter your choice: ").orElse(-1);
-                switch (select) {
-                    case 1:
-                        addItemToShop(c.getOwnedShop());
-                        break;
-                    case 2:
-                        deleteItemFromShop(c.getOwnedShop());
-                        break;
-                    default:
-                        System.out.println("INVALID");
-                }
-                break;
-            case "3":
-                acceptOrderByShop(c.getOwnedShop());
-                break;
-            case "4:":
-                c.addBalance(c.getOwnedShop().getRevenue());
-                c.getOwnedShop().setRevenue(0);
-                System.out.println("Transfer successfully!");
-                break;
-            default:
-                System.out.println("Invalid choice.");
+            switch (choice) {
+                case "1":
+                    changeShopInfo(c.getOwnedShop());
+                    break;
+                case "2":
+                    System.out.println("1. Add item");
+                    System.out.println("2. Delete item");
+                    int select = Utils.promptIntInput("Enter your choice: ").orElse(-1);
+                    switch (select) {
+                        case 1:
+                            addItemToShop(c.getOwnedShop());
+                            break;
+                        case 2:
+                            deleteItemFromShop(c.getOwnedShop());
+                            break;
+                        default:
+                            System.out.println("INVALID");
+                    }
+                    break;
+                case "3":
+                    acceptOrderByShop(c.getOwnedShop());
+                    break;
+                case "4":
+                    c.addBalance(c.getOwnedShop().getRevenue());
+                    c.getOwnedShop().setRevenue(0);
+                    System.out.println("Transfer successfully!");
+                    break;
+                default:
+                    System.out.println("Exit shop menu.");
+                    return;
+            }
         }
     }
 
@@ -347,6 +409,10 @@ public final class ShopdeeClient {
 
     private static void acceptOrderByShop(Shop shop) {
         List<Order> ordersByThisShop = system.getOrdersByShop(shop);
+        if (ordersByThisShop.isEmpty()) {
+            System.out.println("Your shop doesn't have any order.");
+            return;
+        }
         List<Integer> orderIdsByThisShop = ordersByThisShop.stream().mapToInt(order -> order.getId()).boxed().toList();
         for (Order order : system.getOrdersByShop(shop)) {
             System.out.println("List of order by this shop:");
@@ -371,9 +437,8 @@ public final class ShopdeeClient {
 
         switch (choice) {
             case "1":
-                System.out.println("Enter new shop name: ");
-                String shopName = scanner.next();
-                shop.setName(shopName);
+                String shopName = Utils.promptInput("Enter new shop name: ");
+                if (!shopName.isEmpty()) shop.setName(shopName);
                 break;
             case "2":
                 System.out.println("Enter new shop address: ");
@@ -435,35 +500,38 @@ public final class ShopdeeClient {
             System.out.println("User is null! Cannot update profile");
         }
         System.out.println("Your profile:\n" + currentUser.toString());
+        System.out.println("Choose an action:");
         System.out.println("1. Change name");
         System.out.println("2. Change phone");
         System.out.println("3. Change address");
-        System.out.println("4. Change Password");
+        System.out.println("4. Change password");
+        System.out.println("Other key to quit.");
 
         String choice = Utils.promptInput("Enter your option: ");
-        switch (choice) {
-            case "1":
-                System.out.println("Enter new name: ");
-                String name = scanner.nextLine();
-                currentUser.setName(name);
-                break;
-            case "2":
-                System.out.println("Enter new phone: ");
-                String phone = scanner.nextLine();
-                currentUser.setName(phone);
-                break;
-            case "3":
-                Address address = askForUpdateAddress().orElse(null);
-                if (address != null)
-                    currentUser.setAddress(address);
-                else System.out.println("Failed to update address.");
-                break;
-            case "4":
-                System.out.println("Enter new password: ");
-                String password = scanner.nextLine();
-                currentUser.setPassword(password);
-            default:
-                System.out.println("Invalid choice! Quit updating profile.");
+        try {
+            switch (choice) {
+                case "1":
+                    String name = Utils.promptInput("Enter new name: ");
+                    currentUser.setName(name);
+                    break;
+                case "2":
+                    String phone = Utils.promptInput("Enter new phone: ");
+                    currentUser.setName(phone);
+                    break;
+                case "3":
+                    Address address = askForUpdateAddress().orElse(null);
+                    if (address != null)
+                        currentUser.setAddress(address);
+                    else System.out.println("Failed to update address.");
+                    break;
+                case "4":
+                    String password = Utils.promptInput("Enter new password: ");
+                    currentUser.setPassword(password);
+                default:
+                    System.out.println("Quit updating profile.");
+            }
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid input! Quit updating profile.");
         }
     }
 
@@ -542,14 +610,14 @@ public final class ShopdeeClient {
                 if (Utils.promptInput("Continue? (y/[n]) ").equalsIgnoreCase("y")) continue;
                 else break;
             }
-            int quantity = Utils.promptIntInput("Nhap quantity item ban muon them: ").orElse(-1);
+            int quantity = Utils.promptIntInput("Enter item quantity you want to add: ").orElse(-1);
             if (quantity <= 0) {
                 System.out.println("Invalid quantity. Item is not added.");
                 if (Utils.promptInput("Continue? (y/[n]) ").equalsIgnoreCase("y")) continue;
                 else break;
             }
-            c.addToCart(product, quantity);
-            if (!Utils.promptInput("Stop adding product? (y/[n]) ").equalsIgnoreCase("y")) {
+            if (!c.addToCart(product, quantity)) System.out.println("Add failed!!!");
+            if (Utils.promptInput("Stop adding product? (y/[n]) ").equalsIgnoreCase("y")) {
                 break;
             }
         }
@@ -587,10 +655,20 @@ public final class ShopdeeClient {
     }
 
     private static void searchItem(String itemName) {
-        system.findProducts(itemName).forEach(product -> System.out.println(product.toString()));
+        List<ItemStock> result = system.findProducts(itemName);
+        if (result.isEmpty()) {
+            System.out.println("Currently there is no product on Shopdee.");
+            return;
+        }
+        result.forEach(product -> System.out.println(product.toString()));
     }
 
     private static void searchShop(String shopName) {
-        system.findShops(shopName).forEach(shop -> System.out.println(shop.toString()));
+        List<Shop> result = system.findShops(shopName);
+        if (result.isEmpty()) {
+            System.out.println("Currently there is no shop on Shopdee.");
+            return;
+        }
+        result.forEach(shop -> System.out.println(shop.toString()));
     }
 }
