@@ -43,8 +43,8 @@ public final class SystemManager {
                 profit = data.profit();
                 orders = data.orders();
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
-                e.printStackTrace();
+                System.out.println(e.getMessage());
+//                e.printStackTrace();
                 if (!Utils.promptInput("System message: Error reading data! Create new data? (y/n) ").equalsIgnoreCase("y")) {
                     System.exit(1);
                 }
@@ -226,10 +226,10 @@ public final class SystemManager {
         if (customer.confirmOrder(order)) {
             // If the confirmation succeed, pay money to shop
             Shop shop = order.getShop();
-            shop.increaseRevenue(order.getContent().getTotalPrice() * SHOP_PORTION);
+            shop.increaseRevenue(order.getTotalPrice() * SHOP_PORTION);
             return true;
         }
-        // when confirmation failed
+        // when confirmation failed (most likely happen due to confirming while not being delivered yet)
         // ...
         return false;
     }
@@ -272,14 +272,6 @@ public final class SystemManager {
         return Optional.empty();
     }
 
-//    public Optional<User> authorizeShipper(String username, String password) {
-//        if (username == null || password == null) return Optional.empty();
-//        Shipper shipper = shippers.get(username);
-//        if (shipper == null) return Optional.empty();
-//        if (shipper.getPassword().equals(password)) return Optional.of(shipper);
-//        return Optional.empty();
-//    }
-
     public void shopAddItem(Shop shop, String itemName, double price, int quantity) {
         shop.addItem(new ItemStock(new Item(itemName), price, quantity, shop));
     }
@@ -287,8 +279,4 @@ public final class SystemManager {
     public boolean existsUser(String username) {
         return users.containsKey(username);
     }
-
-//    public boolean existsShipper(String username) {
-//        return shippers.containsKey(username);
-//    }
 }

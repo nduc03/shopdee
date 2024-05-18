@@ -166,13 +166,14 @@ public final class Menu {
                     if (input.equalsIgnoreCase("all")) {
                         for (Order order : customerOrders) {
                             if (!system.userConfirmOrder(c, order))
-                                System.out.println("Error on confirming order.");
+                                System.out.printf("Error on confirming order %s. Order might not be in delivered state.", order.getId());
+                            else System.out.printf("Order %s confirmed successfully!", order.getId());
                         }
                     } else {
                         try {
                             int cartId = Integer.parseInt(input);
                             if (!system.userConfirmOrder(c, cartId)) {
-                                System.out.println("Error on confirming order.");
+                                System.out.println("Error on confirming order. Order might not be in delivered state.");
                             }
                         } catch (NumberFormatException e) {
                             System.out.println("INVALID");
@@ -462,12 +463,7 @@ public final class Menu {
 
     private static void withdraw() {
         double amount = Utils.promptDoubleInput("Enter amount you want to withdraw: ").orElse(-1.0);
-        if (amount > currentUser.getBalance() && amount <= 0.0) {
-            System.out.println("Failed to withdraw");
-            return;
-        }
-        currentUser.withdraw(amount);
-        System.out.println("Withdraw successfully");
+        System.out.println("Success. Amount was withdrawn: " + currentUser.withdraw(amount));
     }
 
     private static void updateProfile() {
@@ -637,7 +633,7 @@ public final class Menu {
     private static void searchItem(String itemName) {
         List<ItemStock> result = system.findProducts(itemName);
         if (result.isEmpty()) {
-            System.out.println("Currently there is no product on Shopdee.");
+            System.out.println("Currently there is no product with that name on our shopping mall.");
             return;
         }
         result.forEach(product -> System.out.println(product.toString()));
@@ -646,7 +642,7 @@ public final class Menu {
     private static void searchShop(String shopName) {
         List<Shop> result = system.findShops(shopName);
         if (result.isEmpty()) {
-            System.out.println("Currently there is no shop on Shopdee.");
+            System.out.println("Currently there is no shop with that name on our shopping mall.");
             return;
         }
         result.forEach(shop -> System.out.println(shop.toString()));

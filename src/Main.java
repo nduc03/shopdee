@@ -7,8 +7,8 @@ public class Main {
             try {
                 Menu.displayMenu();
             } catch (Exception e) {
-//                System.out.println(e.getMessage());
-                e.printStackTrace();
+                System.out.println(e.getMessage());
+//                e.printStackTrace();
                 if (!Utils.promptInput("Restart program? (y/n): ").equalsIgnoreCase("y")) {
                     break;
                 }

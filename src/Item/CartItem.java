@@ -2,31 +2,13 @@ package Item;
 
 import java.util.Objects;
 
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id"
-//)
 public class CartItem {
     private final int id;
     private int quantity;
-//    @JsonIdentityReference(alwaysAsId = true)
     private final ItemStock itemStock;
 
     private static int currentId = 50_000; // id range: 50_000 -> 59_999
 
-//    @JsonCreator
-//    private CartItem(
-//            @JsonProperty("id") int id,
-//            @JsonProperty("quantity") int quantity,
-//            @JsonProperty("itemStock") ItemStock itemStock
-//    ) {
-//        this.id = id;
-//        this.quantity = quantity;
-//        this.itemStock = itemStock;
-//        if (id > currentId) {
-//            currentId = id;
-//        }
-//    }
 
     public CartItem(int quantity, ItemStock itemStock) {
         if (quantity <= 0 || quantity > itemStock.getQuantity()) {

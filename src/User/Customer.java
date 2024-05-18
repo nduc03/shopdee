@@ -12,10 +12,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id"
-//)
 public class Customer extends User {
     @NotNull @JsonIgnore
     private Cart cart;
@@ -30,7 +26,6 @@ public class Customer extends User {
             @JsonProperty("balance") double balance,
             @JsonProperty("phone") String phone,
             @JsonProperty("address") Address address,
-//            @JsonProperty("cart") Cart cart,
             @JsonProperty("ownedShop") Shop ownedShop
     ) {
         super(id, username, password, name, balance, phone, address, UserRole.Customer);
@@ -62,10 +57,6 @@ public class Customer extends User {
         this.cart.addToCart(new CartItem(quantity, item));
         return true;
     }
-
-//    public void addToCart(int cartId, int quantity) {
-//        this.cart.addToCart(cartId, quantity);
-//    }
 
     public void removeFromCart(int cartId, int quantity) {
         this.cart.removeFromCart(cartId, quantity);

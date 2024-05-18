@@ -4,42 +4,33 @@ import Item.Cart;
 import Item.CartItem;
 import Item.Item;
 import Shop.Shop;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Hashtable;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 // Cart filtered by shop
 public class OrderContent {
     private final Shop shop;
     private final double totalPrice;
-    private final Hashtable<Item, Integer> items;
-
-    @JsonCreator
-    private OrderContent(
-            @JsonProperty("shop") Shop shop,
-            @JsonProperty("totalPrice") double totalPrice,
-            @JsonProperty("items") Hashtable<Item, Integer> items
-    ) {
-        this.shop = shop;
-        this.totalPrice = totalPrice;
-        this.items = items;
-    }
+    private final List<OrderItem> items;
 
     private OrderContent(Shop shop, Cart cart) {
         super();
         this.shop = shop;
         totalPrice = cart.getTotalPrice();
-        items = new Hashtable<>();
+        items = new ArrayList<>();
         for (CartItem cartItem : cart.getItems()) {
             Item thisItem = cartItem.getItemStock().getItem();
-            if (items.containsKey(thisItem)) {
-                items.put(cartItem.getItemStock().getItem(),
-                        items.get(thisItem) + cartItem.getQuantity());
+            int itemIndex = existsInList(items, thisItem);
+            if (itemIndex != -1) {
+                // if already exists in the list, increase the quantity
+                items.set(
+                        itemIndex,
+                        new OrderItem(thisItem, items.get(itemIndex).quantity() + cartItem.getQuantity())
+                );
                 continue;
             }
-            items.put(thisItem, cartItem.getQuantity());
+            items.add(new OrderItem(thisItem, cartItem.getQuantity()));
         }
     }
 
@@ -59,23 +50,16 @@ public class OrderContent {
         return totalPrice;
     }
 
-    public Hashtable<Item, Integer> getItems() {
+    public List<OrderItem> getItems() {
         return items;
     }
 
-    @Override
-    public String toString() {
-        return "OrderContent: " +
-                "\nshop=" + shop.getName() +
-                "\ntotalPrice: " + totalPrice +
-                "\nitems:\n" + itemsToString();
-    }
-
-    private String itemsToString() {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<Item, Integer> item : items.entrySet()) {
-            sb.append(String.format("%s - %d\n", item.getKey().getName(), item.getValue()));
+    private static int existsInList(List<OrderItem> list, Item item) {
+        for (int i = 0; i < list.size(); i++){
+            if (list.get(i).item().equals(item)) {
+                return i;
+            }
         }
-        return sb.toString();
+        return -1;
     }
 }

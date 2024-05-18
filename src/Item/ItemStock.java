@@ -8,10 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id"
-//)
 public class ItemStock {
     private final int id;
     @NotNull

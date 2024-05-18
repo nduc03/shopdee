@@ -8,10 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id"
-//)
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.CLASS
 )
@@ -149,7 +145,7 @@ public abstract class User {
     }
 
     public double withdraw(double amount) {
-        double possibleAmount = Utils.clamp(amount, 0, amount);
+        double possibleAmount = Utils.clamp(amount, 0, balance);
         balance -= possibleAmount;
         return possibleAmount;
     }

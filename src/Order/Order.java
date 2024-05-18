@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @JsonIdentityInfo(
@@ -23,14 +24,15 @@ public class Order {
     @NotNull
     private final Customer customer;
     @NotNull
-    private final OrderContent content;
-    @NotNull
     private final Shop shop;
     @NotNull
     private OrderState orderState;
     private Shipper shipper;
     @NotNull
     private Address location;
+
+    private final double totalPrice;
+    private final List<OrderItem> items;
 
     private static int currentId = 10000; // from 10_000 to 19_999
 
@@ -39,16 +41,18 @@ public class Order {
             @JsonProperty("id") int id,
             @JsonProperty("orderedDate") Date orderedDate,
             @JsonProperty("customer") @NotNull Customer customer,
-            @JsonProperty("content") @NotNull OrderContent content,
             @JsonProperty("shop") @NotNull Shop shop,
             @JsonProperty("orderState") @NotNull OrderState orderState,
             @JsonProperty("shipper") Shipper shipper,
-            @JsonProperty("location") @NotNull Address location
+            @JsonProperty("location") @NotNull Address location,
+            @JsonProperty("totalPrice") double totalPrice,
+            @JsonProperty("items") List<OrderItem> items
     ) {
         this.id = id;
         this.orderedDate = orderedDate;
         this.customer = customer;
-        this.content = content;
+        this.totalPrice = totalPrice;
+        this.items = items;
         this.shop = shop;
         this.orderState = orderState;
         this.shipper = shipper;
@@ -66,7 +70,8 @@ public class Order {
         this.id = ++currentId;
         this.customer = customer;
         this.orderedDate = orderedDate;
-        this.content = content;
+        this.totalPrice = content.getTotalPrice();
+        this.items = content.getItems();
         this.shop = content.getShop();
         this.orderState = OrderState.CREATED;
         this.location = shop.getAddress();
@@ -93,8 +98,12 @@ public class Order {
         this.orderedDate = orderedDate;
     }
 
-    public @NotNull OrderContent getContent() {
-        return content;
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public List<OrderItem> getItems() {
+        return items;
     }
 
     public @NotNull Shop getShop() {
@@ -143,8 +152,17 @@ public class Order {
                 "\nid=" + id +
                 "\norderedDate=" + orderedDate.toString() +
                 "\ncustomer=" + customer.getName() +
+                "\nshop=" + shop.getName() +
                 "\norderState=" + orderState +
-                "\ncontent:\n" + content +
+                "\ncontent:\n" + itemsToString() +
                 '\n';
+    }
+
+    private String itemsToString() {
+        StringBuilder sb = new StringBuilder();
+        for (OrderItem item : items) {
+            sb.append(String.format("Name: %s - Amount: %d\n", item.item().getName(), item.quantity()));
+        }
+        return sb.toString();
     }
 }

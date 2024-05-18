@@ -6,20 +6,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-//@JsonTypeInfo(
-//        use = JsonTypeInfo.Id.CLASS
-//)
-//@JsonSubTypes({
-//        @JsonSubTypes.Type(value = OrderContent.class, name = "OrderContent")
-//})
 public class Cart {
     @NotNull
     private final HashSet<CartItem> items;
-
-//    @JsonCreator
-//    private Cart(@JsonProperty("items") HashSet<CartItem> items) {
-//        this.items = items;
-//    }
 
     public Cart() {
         items = new HashSet<>();
@@ -82,12 +71,7 @@ public class Cart {
     public boolean existsInCart(int cartId) {
         return items.stream().filter(item -> item.getId() == cartId).findFirst().orElse(null) != null;
     }
-//
-//    protected void setItems(Collection<CartItem> items) {
-//        this.items.addAll(items);
-//    }
 
-    //    @JsonIgnore
     public boolean isEmpty() {
         return items.isEmpty();
     }

@@ -5,20 +5,18 @@ import Order.Order;
 import Order.OrderState;
 import User.Customer;
 import Utils.Address;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id"
-//)
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Shop {
-//    private final int id;
+    private final int id;
     @NotNull
     private String name;
     @JsonManagedReference
@@ -27,17 +25,17 @@ public class Shop {
     @NotNull
     private Address address;
 
-//    private static int currentId = 40_000; // range 40_000 - 49_999
+    private static int currentId = 40_000; // range 40_000 - 49_999
 
     @JsonCreator
     private Shop(
-//            @JsonProperty("id") int id,
+            @JsonProperty("id") int id,
             @JsonProperty("name") @NotNull String name,
             @JsonProperty("stock") List<ItemStock> stock,
             @JsonProperty("revenue") double revenue,
             @JsonProperty("address") @NotNull Address address
     ){
-//        this.id = id;
+        this.id = id;
         this.name = name;
         this.stock = stock;
         this.revenue = revenue;
@@ -46,14 +44,14 @@ public class Shop {
             if (itemStock.getShop() == null)
                 itemStock.setShop(this);
         }
-//        if (id > currentId) currentId = id;
+        if (id > currentId) currentId = id;
     }
 
     public Shop(@NotNull String name, @NotNull Address address) {
-//        id = ++currentId;
-//        if ((currentId - 49_999) % 100_000 == 0) {
-//            currentId += 100_000 - 9999;
-//        }
+        id = ++currentId;
+        if ((currentId - 49_999) % 100_000 == 0) {
+            currentId += 100_000 - 9999;
+        }
         this.name = name;
         this.revenue = 0.0;
         this.address = address;
@@ -72,9 +70,9 @@ public class Shop {
         return stock;
     }
 
-//    public int getId() {
-//        return id;
-//    }
+    public int getId() {
+        return id;
+    }
 
     public double getRevenue() {
         return revenue;
@@ -124,34 +122,11 @@ public class Shop {
         return false;
     }
 
-//    public Order makeOrder(Customer customer, OrderContent orderContent) {
-//        if (customer == null || orderContent == null) throw new IllegalArgumentException("Null argument");
-//        if (!orderContent.getShop().equals(this)) throw new IllegalArgumentException("Invalid shop");
-//        orderContent.getItems().forEach(cartItem -> {
-//            ItemStock itemStock = cartItem.getItemStock();
-//            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
-//        });
-//        return new Order(customer, new Date(), orderContent);
-//    }
-
     public void acceptOrder(Order order) {
         if (order != null && order.getShop() == this && order.getOrderState() == OrderState.CREATED) {
             order.setOrderState(OrderState.SHOP_ACCEPTED);
         }
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof Shop shop)) return false;
-//        return id == shop.id;
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hashCode(id);
-//    }
-
 
     @Override
     public String toString() {
