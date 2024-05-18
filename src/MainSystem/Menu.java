@@ -15,16 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public final class ShopdeeClient {
+public final class Menu {
 
     private static User currentUser = null;
-    private static final ShopdeeSystem system = ShopdeeSystem.getInstance();
+    private static final SystemManager system = SystemManager.getInstance();
 
-    private ShopdeeClient() {
+    private Menu() {
     }
 
     public static void displayMenu() {
         while (true) {
+            system.saveData();
             String username;
             String password;
             System.out.println("====== LOGIN MENU ======");
@@ -49,38 +50,6 @@ public final class ShopdeeClient {
                     }
                     break;
                 case "2":
-//                    System.out.println("-------Register menu----------");
-//                    System.out.println("Choose your role: ");
-//                    System.out.println("1. Customer");
-//                    System.out.println("2. Shipper");
-//                    int roleChoice = Utils.promptIntInput("Option: ").orElse(-1);
-//                    if (roleChoice != 1 && roleChoice != 2) {
-//                        System.out.println("Invalid choice. Stop register.");
-//                        continue;
-//                    }
-//                    while (true) {
-//                        username = Utils.promptInput("Enter your username: ");
-//                        if (system.existsUser(username)) {
-//                            System.out.println("This username existed. Try again!");
-//                        } else break;
-//                    }
-//                    password = Utils.promptInput("Enter your password: ");
-//                    String name = Utils.promptInput("Enter your name: ");
-//                    String phone = Utils.promptInput("Enter your phone number: ");
-//                    Address address = askForUpdateAddress().orElse(null);
-//                    if (address == null) {
-//                        System.out.println("Invalid input. Stop register.");
-//                        continue;
-//                    }
-//                    if (roleChoice == 1) {
-//                        if (system.registerCustomer(username, password, name, phone, address)) {
-//                            System.out.println("Register success!");
-//                        } else System.out.println("Register failed!");
-//                    } else {
-//                        if (system.registerShipper(username, password, name, phone, address)) {
-//                            System.out.println("Register success!");
-//                        } else System.out.println("Register failed!");
-//                    }
                     displayRegisterMenu();
                     break;
                 case "3":
@@ -141,6 +110,7 @@ public final class ShopdeeClient {
             return;
         }
         while (true) {
+            system.saveData();
             System.out.println("========= Customer menu =========");
             System.out.println("Hello " + currentUser.getName() + "!");
             System.out.println("1. View/Update Profile");
@@ -239,6 +209,7 @@ public final class ShopdeeClient {
             return;
         }
         while (true) {
+            system.saveData();
             System.out.println("========= Shipper menu =========");
             System.out.println("Hello " + currentUser.getName() + "!");
             System.out.println("Your balance: " + s.getBalance());
@@ -342,6 +313,7 @@ public final class ShopdeeClient {
     private static void displayShopMenu() {
         Customer c = (Customer) currentUser;
         while (true) {
+            system.saveData();
             System.out.println("========= Shop menu =========");
             System.out.println("Your shop's revenue: " + c.getOwnedShop().getRevenue());
             System.out.println("1. Change Shop information");

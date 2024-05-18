@@ -1,34 +1,32 @@
 package Item;
 
-import com.fasterxml.jackson.annotation.*;
-
 import java.util.Objects;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id"
+//)
 public class CartItem {
     private final int id;
     private int quantity;
-    @JsonIdentityReference(alwaysAsId = true)
+//    @JsonIdentityReference(alwaysAsId = true)
     private final ItemStock itemStock;
 
     private static int currentId = 50_000; // id range: 50_000 -> 59_999
 
-    @JsonCreator
-    private CartItem(
-            @JsonProperty("id") int id,
-            @JsonProperty("quantity") int quantity,
-            @JsonProperty("itemStock") ItemStock itemStock
-    ) {
-        this.id = id;
-        this.quantity = quantity;
-        this.itemStock = itemStock;
-        if (id > currentId) {
-            currentId = id;
-        }
-    }
+//    @JsonCreator
+//    private CartItem(
+//            @JsonProperty("id") int id,
+//            @JsonProperty("quantity") int quantity,
+//            @JsonProperty("itemStock") ItemStock itemStock
+//    ) {
+//        this.id = id;
+//        this.quantity = quantity;
+//        this.itemStock = itemStock;
+//        if (id > currentId) {
+//            currentId = id;
+//        }
+//    }
 
     public CartItem(int quantity, ItemStock itemStock) {
         if (quantity <= 0 || quantity > itemStock.getQuantity()) {
@@ -36,9 +34,9 @@ public class CartItem {
         }
         this.quantity = quantity;
         this.itemStock = itemStock;
-        id = currentId++;
-        if (currentId % 50_000 == 0) {
-            currentId += 100_000 - 10_000;
+        id = ++currentId;
+        if ((currentId - 59_999) % 100_000 == 0) {
+            currentId += 100_000 - 9999;
         }
     }
 

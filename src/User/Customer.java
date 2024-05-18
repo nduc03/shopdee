@@ -7,16 +7,17 @@ import Order.Order;
 import Order.OrderState;
 import Shop.Shop;
 import Utils.Address;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id"
+//)
 public class Customer extends User {
-    @JsonIgnore
-    @NotNull
+    @NotNull @JsonIgnore
     private Cart cart;
     private Shop ownedShop;
 
@@ -29,11 +30,11 @@ public class Customer extends User {
             @JsonProperty("balance") double balance,
             @JsonProperty("phone") String phone,
             @JsonProperty("address") Address address,
-            @JsonProperty("cart") @NotNull Cart cart,
+//            @JsonProperty("cart") Cart cart,
             @JsonProperty("ownedShop") Shop ownedShop
     ) {
         super(id, username, password, name, balance, phone, address, UserRole.Customer);
-        this.cart = cart;
+        this.cart = new Cart();
         this.ownedShop = ownedShop;
     }
 
@@ -83,8 +84,15 @@ public class Customer extends User {
         return oldCart;
     }
 
+    public void refund(double amount) {
+        if (amount < 0) return;
+        addBalance(amount);
+    }
+
     public boolean confirmOrder(Order order) {
         if (!order.getCustomer().equals(this)) return false;
+
+        if (order.getOrderState() != OrderState.DELIVERED) return false;
 
         order.setOrderState(OrderState.CUSTOMER_CONFIRMED);
         return true;

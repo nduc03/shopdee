@@ -2,12 +2,26 @@ package User;
 
 import Utils.Address;
 import Utils.Utils;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id"
+//)
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.CLASS
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Customer.class, name = "Customer"),
+        @JsonSubTypes.Type(value = Shipper.class, name = "Shipper"),
+})
 public abstract class User {
     private final int id;
+    @NotNull
     private final String username;
     @NotNull
     private String password;
@@ -27,12 +41,12 @@ public abstract class User {
     User(
             int id,
             String username,
-            @NotNull String password,
-            @NotNull String name,
+            String password,
+            String name,
             double balance,
-            @NotNull String phone,
-            @NotNull Address address,
-            @NotNull UserRole role
+            String phone,
+            Address address,
+            UserRole role
     ) {
         this.username = username;
         this.password = password;
@@ -49,7 +63,7 @@ public abstract class User {
 
     // Normal constructor
     User(
-            String username,
+            @NotNull String username,
             @NotNull String password,
             @NotNull String name,
             @NotNull String phone,
@@ -81,7 +95,7 @@ public abstract class User {
         return id;
     }
 
-    public String getUsername() {
+    public @NotNull String getUsername() {
         return username;
     }
 
@@ -129,7 +143,7 @@ public abstract class User {
     public void addBalance(double amount) {
         balance += amount;
     }
-    
+
     protected void decreaseBalance(double amount) {
         balance -= amount;
     }
@@ -154,7 +168,7 @@ public abstract class User {
 
     @Override
     public String toString() {
-        return  name + "'s info:\n" +
+        return name + "'s info:\n" +
                 "Username: '" + username + '\'' +
                 "\nBalance: " + balance +
                 "\nPhone: '" + phone + '\'' +

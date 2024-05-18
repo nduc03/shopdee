@@ -1,12 +1,15 @@
 package Item;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
 public class Item {
     @NotNull
     private String name;
 
-    public Item(@NotNull String name) {
+    @JsonCreator
+    public Item(@JsonProperty("name") @NotNull String name) {
         this.name = name;
     }
 

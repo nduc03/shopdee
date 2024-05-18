@@ -1,21 +1,23 @@
 package Item;
 
 import Shop.Shop;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id"
+//)
 public class ItemStock {
     private final int id;
     @NotNull
     private final Item item;
     private double price;
     private int quantity;
-    @NotNull
-    private final Shop shop;
+    @JsonBackReference
+    private Shop shop;
 
     private static int currentId = 30_000; // range: 30_000 -> 39_999
 
@@ -25,7 +27,7 @@ public class ItemStock {
             @JsonProperty("item") @NotNull Item item,
             @JsonProperty("price") double price,
             @JsonProperty("quantity") int quantity,
-            @JsonProperty("shop") @NotNull Shop shop
+            @JsonProperty("shop") Shop shop
     ) {
         this.item = item;
         this.price = price;
@@ -42,9 +44,9 @@ public class ItemStock {
         this.price = price;
         this.quantity = quantity;
         this.shop = shop;
-        id = currentId++;
-        if ((currentId - 30_000) % 100_000 == 0) {
-            currentId += 100_000 - 10_000;
+        id = ++currentId;
+        if ((currentId - 39_999) % 100_000 == 0) {
+            currentId += 100_000 - 9999;
         }
     }
 
@@ -72,17 +74,22 @@ public class ItemStock {
         this.quantity = quantity;
     }
 
-    public @NotNull Shop getShop() {
+    public Shop getShop() {
         return shop;
     }
 
+//    private void setShop(@NotNull Shop shop) {
+//        this.shop = shop;
+//    }
+
     @Override
     public String toString() {
+        String shopName = shop == null ? "null" : shop.getName();
         return "ItemStock:" +
                 "\nid: " + id +
                 "\nitem name: " + item.getName() +
                 "\nprice: " + price +
                 "\nquantity: " + quantity +
-                "\nshop: " + shop.getName() + '\n';
+                "\nshop: " + shopName + '\n';
     }
 }

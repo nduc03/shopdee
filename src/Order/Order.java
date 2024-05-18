@@ -1,6 +1,5 @@
 package Order;
 
-import Item.Cart;
 import Shop.Shop;
 import User.Customer;
 import User.Shipper;
@@ -61,10 +60,10 @@ public class Order {
 
     // an order contents must come from only one shop, using OrderContent to ensure this
     public Order(@NotNull Customer customer, Date orderedDate, @NotNull OrderContent content) {
-        if ((currentId + 1) % 20000 == 0) {
+        if ((currentId - 19_999) % 100_000 == 0) {
             currentId += 100_000 - 9999;
         }
-        this.id = currentId++;
+        this.id = ++currentId;
         this.customer = customer;
         this.orderedDate = orderedDate;
         this.content = content;
@@ -94,7 +93,7 @@ public class Order {
         this.orderedDate = orderedDate;
     }
 
-    public Cart getContent() {
+    public @NotNull OrderContent getContent() {
         return content;
     }
 

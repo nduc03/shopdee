@@ -1,21 +1,25 @@
 package Item;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
+//@JsonTypeInfo(
+//        use = JsonTypeInfo.Id.CLASS
+//)
+//@JsonSubTypes({
+//        @JsonSubTypes.Type(value = OrderContent.class, name = "OrderContent")
+//})
 public class Cart {
     @NotNull
     private final HashSet<CartItem> items;
 
-    @JsonCreator
-    protected Cart(@JsonProperty("items") @NotNull HashSet<CartItem> items) {
-        this.items = items;
-    }
+//    @JsonCreator
+//    private Cart(@JsonProperty("items") HashSet<CartItem> items) {
+//        this.items = items;
+//    }
 
     public Cart() {
         items = new HashSet<>();
@@ -30,8 +34,8 @@ public class Cart {
         if (cartItem != null) {
             if (items.contains(cartItem)) {
                 this.items.stream()
-                        .filter(item -> cartItem.getId() == item.getId()).findFirst()
-                        .ifPresent(item -> item.setQuantity(cartItem.getQuantity() + item.getQuantity()));
+                        .filter(item -> item.getId() == cartItem.getId()).findFirst()
+                        .ifPresent(item -> item.setQuantity(item.getQuantity() + cartItem.getQuantity()));
             } else
                 items.add(cartItem);
         }
@@ -62,6 +66,7 @@ public class Cart {
         this.items.stream().filter(cart -> cart.getId() == cartId).findFirst().ifPresent(this.items::remove);
     }
 
+    //    @JsonIgnore
     public double getTotalPrice() {
         double total = 0;
         for (CartItem item : items) {
@@ -77,11 +82,12 @@ public class Cart {
     public boolean existsInCart(int cartId) {
         return items.stream().filter(item -> item.getId() == cartId).findFirst().orElse(null) != null;
     }
+//
+//    protected void setItems(Collection<CartItem> items) {
+//        this.items.addAll(items);
+//    }
 
-    protected void setItems(Collection<CartItem> items) {
-        this.items.addAll(items);
-    }
-
+    //    @JsonIgnore
     public boolean isEmpty() {
         return items.isEmpty();
     }

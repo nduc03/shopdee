@@ -2,29 +2,39 @@ package Order;
 
 import Item.Cart;
 import Item.CartItem;
+import Item.Item;
 import Shop.Shop;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
 
 // Cart filtered by shop
-public class OrderContent extends Cart {
+public class OrderContent {
     private final Shop shop;
+    private final double totalPrice;
+    private final Hashtable<Item, Integer> items;
 
     @JsonCreator
     private OrderContent(
-            @JsonProperty("items") HashSet<CartItem> items,
-            @JsonProperty("shop") Shop shop
+            @JsonProperty("shop") Shop shop,
+            @JsonProperty("totalPrice") double totalPrice,
+            @JsonProperty("items") Hashtable<Item, Integer> items
     ) {
-        super(items);
         this.shop = shop;
+        this.totalPrice = totalPrice;
+        this.items = items;
     }
 
     private OrderContent(Shop shop, Cart cart) {
         super();
         this.shop = shop;
-        setItems(cart.getItems());
+        totalPrice = cart.getTotalPrice();
+        items = new Hashtable<>();
+        for (CartItem cartItem : cart.getItems()) {
+            items.put(cartItem.getItemStock().getItem(), cartItem.getQuantity());
+        }
     }
 
     public static OrderContent filterFromCustomerCart(Shop shop, Cart customerCart) {
@@ -37,5 +47,30 @@ public class OrderContent extends Cart {
 
     public Shop getShop() {
         return shop;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public Hashtable<Item, Integer> getItems() {
+        return items;
+    }
+
+    @Override
+    public String toString() {
+        return "OrderContent: " +
+                "\nshop=" + shop +
+                "\ntotalPrice=" + totalPrice +
+                "\nitems=" + itemsToString(items) +
+                '}';
+    }
+
+    private static String itemsToString(Hashtable<Item, Integer> items) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<Item, Integer> item : items.entrySet()) {
+            sb.append(String.format("%s - %d\n", item.getKey().getName(), item.getValue()));
+        }
+        return sb.toString();
     }
 }

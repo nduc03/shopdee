@@ -7,34 +7,78 @@ import Order.Order;
 import Order.OrderContent;
 import Order.OrderState;
 import Shop.Shop;
-import User.*;
+import User.Customer;
+import User.Shipper;
+import User.User;
+import User.UserRole;
 import Utils.Address;
+import Utils.Utils;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
-public final class ShopdeeSystem {
+public final class SystemManager {
     private static final double SHIPPER_FEE = 5000.0;
     private static final double PROFIT = 0.09;
     private static final double SHOP_PORTION = 1.0 - PROFIT;
-    private static Hashtable<String, User> users;
-    private static double profit = 0.0;
-    private static List<Order> orders;
+    private static final Path dataPath = Paths.get("data.json");
+    private static final ObjectMapper mapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-//    private static Hashtable<String, Shipper> shippers;
+    private Hashtable<String, User> users;
+    private double profit;
+    private List<Order> orders;
 
-    private ShopdeeSystem() {
-        users = new Hashtable<>();
-        orders = new ArrayList<>();
-//        shippers = new Hashtable<>();
-        // TODO: Đọc file -> khởi tạo mọi thứ từ file
+    private SystemManager() {
+        if (Files.exists(dataPath)) {
+            try {
+                String content = Files.readAllLines(dataPath).get(0);
+                SystemDataHolder data = mapper.readValue(content, SystemDataHolder.class);
+                users = data.users();
+                profit = data.profit();
+                orders = data.orders();
+            } catch (Exception e) {
+//                System.out.println(e.getMessage());
+                e.printStackTrace();
+                if (!Utils.promptInput("System message: Error reading data! Create new data? (y/n) ").equalsIgnoreCase("y")) {
+                    System.exit(1);
+                }
+                users = new Hashtable<>();
+                profit = 0.0;
+                orders = new ArrayList<>();
+            }
+        } else {
+            System.out.println("System message: Data file not found. Creating new data.");
+            users = new Hashtable<>();
+            profit = 0.0;
+            orders = new ArrayList<>();
+        }
     }
 
     private static final class SingletonHolder {
-        private static final ShopdeeSystem instance = new ShopdeeSystem();
+        private static final SystemManager instance = new SystemManager();
     }
 
-    public static ShopdeeSystem getInstance() {
+    public static SystemManager getInstance() {
         return SingletonHolder.instance;
+    }
+
+    public void saveData() {
+        try {
+            SystemDataHolder data = new SystemDataHolder(users, profit, orders);
+            String content = mapper.writeValueAsString(data);
+            Files.writeString(dataPath, content);
+        } catch (IOException e) {
+            System.out.println("System message: Error opening file!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            System.out.println("System message: Error saving data!");
+        }
     }
 
     public List<ItemStock> findProducts(String productName) {
@@ -122,7 +166,6 @@ public final class ShopdeeSystem {
 
     public SystemResponse createOrder(Customer customer) {
         if (customer == null) return new SystemResponse(false, "Invalid customer when creating order.");
-//        Date now = new Date();
         Cart cart;
         try {
             cart = customer.buy(); // get all items from cart then delete user cart
@@ -136,8 +179,7 @@ public final class ShopdeeSystem {
         HashSet<Shop> allShopFromCart = new HashSet<>();
         cart.getItems().forEach(cartItem -> allShopFromCart.add(cartItem.getItemStock().getShop()));
 
-        // create a list of orders corresponding to the shop
-//        List<Order> orderList = new ArrayList<>();
+        // create a list of orders corresponding to the shop then add to the order list
         allShopFromCart.forEach(shop -> {
             OrderContent orderContent = OrderContent.filterFromCustomerCart(shop, cart);
             orders.add(new Order(customer, new Date(), orderContent));
@@ -149,7 +191,6 @@ public final class ShopdeeSystem {
             itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
         });
 
-//        orders.addAll(orderList);
         profit += cart.getTotalPrice() * PROFIT;
         return new SystemResponse(true, "Order successfully created.");
     }
@@ -180,15 +221,17 @@ public final class ShopdeeSystem {
         return true;
     }
 
-    public void userConfirmOrder(Customer customer, Order order) {
-        if (customer == null || order == null) return;
+    public boolean userConfirmOrder(Customer customer, Order order) {
+        if (customer == null || order == null) return false;
         if (customer.confirmOrder(order)) {
             // If the confirmation succeed, pay money to shop
             Shop shop = order.getShop();
             shop.increaseRevenue(order.getContent().getTotalPrice() * SHOP_PORTION);
-        } else {
-            // TODO: process the invalid order that cannot confirm
+            return true;
         }
+        // when confirmation failed
+        // ...
+        return false;
     }
 
     public void userConfirmOrder(Customer customer, int orderId) {
@@ -207,6 +250,7 @@ public final class ShopdeeSystem {
             return false;
         }
         users.put(username, new Customer(username, password, name, phone, address));
+        saveData();
         return true;
     }
 
@@ -216,6 +260,7 @@ public final class ShopdeeSystem {
             return false;
         }
         users.put(username, new Shipper(username, password, name, phone, address));
+        saveData();
         return true;
     }
 
