@@ -33,7 +33,13 @@ public class OrderContent {
         totalPrice = cart.getTotalPrice();
         items = new Hashtable<>();
         for (CartItem cartItem : cart.getItems()) {
-            items.put(cartItem.getItemStock().getItem(), cartItem.getQuantity());
+            Item thisItem = cartItem.getItemStock().getItem();
+            if (items.containsKey(thisItem)) {
+                items.put(cartItem.getItemStock().getItem(),
+                        items.get(thisItem) + cartItem.getQuantity());
+                continue;
+            }
+            items.put(thisItem, cartItem.getQuantity());
         }
     }
 
@@ -60,13 +66,12 @@ public class OrderContent {
     @Override
     public String toString() {
         return "OrderContent: " +
-                "\nshop=" + shop +
-                "\ntotalPrice=" + totalPrice +
-                "\nitems=" + itemsToString(items) +
-                '}';
+                "\nshop=" + shop.getName() +
+                "\ntotalPrice: " + totalPrice +
+                "\nitems:\n" + itemsToString();
     }
 
-    private static String itemsToString(Hashtable<Item, Integer> items) {
+    private String itemsToString() {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<Item, Integer> item : items.entrySet()) {
             sb.append(String.format("%s - %d\n", item.getKey().getName(), item.getValue()));

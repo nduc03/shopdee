@@ -165,12 +165,15 @@ public final class Menu {
                     if (input.equalsIgnoreCase("exit")) continue;
                     if (input.equalsIgnoreCase("all")) {
                         for (Order order : customerOrders) {
-                            system.userConfirmOrder(c, order);
+                            if (!system.userConfirmOrder(c, order))
+                                System.out.println("Error on confirming order.");
                         }
                     } else {
                         try {
                             int cartId = Integer.parseInt(input);
-                            system.userConfirmOrder(c, cartId);
+                            if (!system.userConfirmOrder(c, cartId)) {
+                                System.out.println("Error on confirming order.");
+                            }
                         } catch (NumberFormatException e) {
                             System.out.println("INVALID");
                         }
@@ -214,7 +217,7 @@ public final class Menu {
             System.out.println("Hello " + currentUser.getName() + "!");
             System.out.println("Your balance: " + s.getBalance());
             System.out.println("1. Receive order");
-            System.out.println("2. Confirm order");
+            System.out.println("2. Deliver order");
             System.out.println("3. View task");
             System.out.println("4. View/Update Profile");
             System.out.println("5. Withdraw");
@@ -268,7 +271,7 @@ public final class Menu {
 
     private static void shipperFinishesOrder() {
         Shipper s = (Shipper) currentUser;
-        System.out.println("----------Finish order menu-----------");
+        System.out.println("----------Deliver order menu-----------");
 
         List<Order> orders = system.getShippingOrders(s);
 
@@ -280,7 +283,7 @@ public final class Menu {
             System.out.println(order.toString());
         }
         do {
-            int id = Utils.promptIntInput("Enter order id you want to finish: ").orElse(-1);
+            int id = Utils.promptIntInput("Enter order id you want to deliver and finish: ").orElse(-1);
             if (!system.shipperFinishesOrder(s, id)) System.out.println("Invalid");
         } while (Utils.promptInput("Continue? (y/n) ").equalsIgnoreCase("y"));
     }
@@ -589,7 +592,7 @@ public final class Menu {
                 else break;
             }
             if (!c.addToCart(product, quantity)) System.out.println("Add failed!!!");
-            if (Utils.promptInput("Stop adding product? (y/[n]) ").equalsIgnoreCase("y")) {
+            if (!Utils.promptInput("Continue adding product? (y/[n]) ").equalsIgnoreCase("y")) {
                 break;
             }
         }
@@ -598,8 +601,8 @@ public final class Menu {
     private static void removeItemFromCart() {
         Customer c = (Customer) currentUser;
         while (true) {
-            int id = Utils.promptIntInput("Enter product id you want to remove: ").orElse(-1);
-            if (id == -1 || c.getCart().existsInCart(id)) {
+            int id = Utils.promptIntInput("Enter cart id you want to remove: ").orElse(-1);
+            if (id == -1 || !c.getCart().existsInCart(id)) {
                 System.out.println("Invalid id. Item will not remove.");
                 if (Utils.promptInput("Continue? (y/[n]) ").equalsIgnoreCase("y")) continue;
                 else break;
@@ -611,7 +614,7 @@ public final class Menu {
                 else break;
             }
             c.removeFromCart(id, quantity);
-            if (!Utils.promptInput("Stop removing product? (y/[n]) ").equalsIgnoreCase("y")) {
+            if (!Utils.promptInput("Continue removing product? (y/[n]) ").equalsIgnoreCase("y")) {
                 break;
             }
         }
@@ -619,8 +622,13 @@ public final class Menu {
 
     private static void viewAllItem() {
         for (Shop shop : system.getAllShops()) {
+            List<ItemStock> items = shop.getStock();
+            if (items.isEmpty()) {
+                System.out.printf("Shop %s currently has no product.\n", shop.getName());
+                continue;
+            }
             System.out.println("- Shop: " + shop.getName());
-            for (ItemStock item : shop.getStock()) {
+            for (ItemStock item : items) {
                 System.out.println(item.toString());
             }
         }

@@ -234,14 +234,14 @@ public final class SystemManager {
         return false;
     }
 
-    public void userConfirmOrder(Customer customer, int orderId) {
-        if (customer == null) return;
+    public boolean userConfirmOrder(Customer customer, int orderId) {
+        if (customer == null) return false;
 
         Order order = orders.stream()
                 .filter(o -> o.getId() == orderId)
                 .findFirst().orElse(null);
 
-        userConfirmOrder(customer, order);
+        return userConfirmOrder(customer, order);
     }
 
     public boolean registerCustomer(String username, String password, String name, String phone, Address address) {

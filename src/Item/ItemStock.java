@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 //@JsonIdentityInfo(
 //        generator = ObjectIdGenerators.PropertyGenerator.class,
 //        property = "id"
@@ -78,9 +80,9 @@ public class ItemStock {
         return shop;
     }
 
-//    private void setShop(@NotNull Shop shop) {
-//        this.shop = shop;
-//    }
+    public void setShop(@NotNull Shop shop) {
+        this.shop = shop;
+    }
 
     @Override
     public String toString() {
@@ -91,5 +93,17 @@ public class ItemStock {
                 "\nprice: " + price +
                 "\nquantity: " + quantity +
                 "\nshop: " + shopName + '\n';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemStock itemStock)) return false;
+        return id == itemStock.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

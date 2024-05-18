@@ -42,6 +42,10 @@ public class Shop {
         this.stock = stock;
         this.revenue = revenue;
         this.address = address;
+        for (ItemStock itemStock : stock) {
+            if (itemStock.getShop() == null)
+                itemStock.setShop(this);
+        }
 //        if (id > currentId) currentId = id;
     }
 
@@ -100,6 +104,13 @@ public class Shop {
     }
 
     public void addItem(@NotNull ItemStock itemStock) {
+//        for (ItemStock item : stock) {
+//            if (item.getId() == itemStock.getId()) {
+//                item.setQuantity(item.getQuantity() + itemStock.getQuantity());
+//                return;
+//            }
+//        }
+
         stock.add(itemStock);
     }
 
@@ -140,4 +151,21 @@ public class Shop {
 //    public int hashCode() {
 //        return Objects.hashCode(id);
 //    }
+
+
+    @Override
+    public String toString() {
+        return "Shop: " +
+                "\nname='" + name + '\'' +
+                "\naddress=" + address +
+                "\nItems are selling:\n" + stockToString() + "-------------------------\n";
+    }
+
+    private String stockToString() {
+        StringBuilder sb = new StringBuilder();
+        for (ItemStock itemStock : stock) {
+            sb.append(itemStock.toString()).append("\n");
+        }
+        return sb.toString();
+    }
 }
