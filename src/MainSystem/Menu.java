@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 
 public final class Menu {
-
     private static User currentUser = null;
     private static final SystemManager system = SystemManager.getInstance();
 

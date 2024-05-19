@@ -5,10 +5,7 @@ import User.Customer;
 import User.Shipper;
 import Utils.Address;
 import Utils.Utils;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -87,6 +84,7 @@ public class Order {
         return customer;
     }
 
+    @JsonIgnore
     public Address getCustomerAddress() {
         return customer.getAddress();
     }

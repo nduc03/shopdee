@@ -8,6 +8,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Hashtable;
 import java.util.List;
 
+/**
+ * Only used for serialization and deserialization of the system data.
+ */
 public record SystemDataHolder(Hashtable<String, User> users, double profit, List<Order> orders) {
     @JsonCreator
     public SystemDataHolder(

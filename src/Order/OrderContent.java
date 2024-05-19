@@ -8,7 +8,9 @@ import Shop.Shop;
 import java.util.ArrayList;
 import java.util.List;
 
-// Cart filtered by shop
+/**
+ * Only used to filter the cart into appropriate order content for each shop.
+ */
 public class OrderContent {
     private final Shop shop;
     private final double totalPrice;

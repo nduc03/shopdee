@@ -153,9 +153,9 @@ public final class SystemManager {
                 .toList();
     }
 
-    public List<Order> getOrdersByShop(Shop shop) {
-        return orders.stream().filter(order -> order.getShop().equals(shop)).toList();
-    }
+//    public List<Order> getOrdersByShop(Shop shop) {
+//        return orders.stream().filter(order -> order.getShop().equals(shop)).toList();
+//    }
 
     public List<Order> getShopOrdersReadyToTake(Shop shop) {
         return orders.stream()
@@ -218,7 +218,11 @@ public final class SystemManager {
                 .filter(o -> o.getId() == orderId)
                 .findFirst().orElse(null);
         if (order != null && order.getLocation().city() == shipper.getAddress().city()) {
-            shipper.takesOrder(order);
+            try {
+                shipper.takesOrder(order);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
             return true;
         }
         return false;
