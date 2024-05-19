@@ -1,8 +1,6 @@
 package MainSystem;
 
-import Item.Cart;
-import Item.Item;
-import Item.ItemStock;
+import Item.*;
 import Order.Order;
 import Order.OrderContent;
 import Order.OrderState;
@@ -166,6 +164,7 @@ public final class SystemManager {
 
     public SystemResponse createOrder(Customer customer) {
         if (customer == null) return new SystemResponse(false, "Invalid customer when creating order.");
+
         Cart cart;
         try {
             cart = customer.buy(); // get all items from cart then delete user cart
@@ -175,23 +174,31 @@ public final class SystemManager {
 
         if (cart.isEmpty()) return new SystemResponse(false, "Empty cart.");
 
+        double customerPaidAmount = cart.getTotalPrice();
+
         // list all shop from all items in the cart
         HashSet<Shop> allShopFromCart = new HashSet<>();
         cart.getItems().forEach(cartItem -> allShopFromCart.add(cartItem.getItemStock().getShop()));
 
-        // create a list of orders corresponding to the shop then add to the order list
+        // create a temp list of orders corresponding to the shop then later add to the order list
+        List<Order> tempOrders = new ArrayList<>();
         allShopFromCart.forEach(shop -> {
             OrderContent orderContent = OrderContent.filterFromCustomerCart(shop, cart);
-            orders.add(new Order(customer, new Date(), orderContent));
+            tempOrders.add(new Order(customer, new Date(), orderContent));
         });
 
         // reduce the quantity in the shop when create order
-        cart.getItems().forEach(cartItem -> {
+        for (CartItem cartItem : cart.getItems()) {
             ItemStock itemStock = cartItem.getItemStock();
-            itemStock.setQuantity(itemStock.getQuantity() - cartItem.getQuantity());
-        });
+            if (!itemStock.buy(cartItem.getQuantity())) {
+                customer.refund(customerPaidAmount);
+                return new SystemResponse(false, "Fail to buy because: Not enough quantity for item " + itemStock.getItem().getName());
+            }
+        }
 
-        profit += cart.getTotalPrice() * PROFIT;
+        // only add tempOrders to the real order list when all validation are successful
+        orders.addAll(tempOrders);
+        profit += customerPaidAmount * PROFIT;
         return new SystemResponse(true, "Order successfully created.");
     }
 

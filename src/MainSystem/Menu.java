@@ -39,7 +39,7 @@ public final class Menu {
                 case "1":
                     System.out.println("------------Login menu--------------");
                     username = Utils.promptInput("Enter your username: ");
-                    password = Utils.promptInput("Enter password: ");
+                    password = Utils.promptPassword("Enter password: ");
                     login(username, password);
                     if (currentUser == null) {
                         System.out.println("Cannot find account or wrong password.");
@@ -84,7 +84,7 @@ public final class Menu {
                 System.out.println("This username existed. Try again!");
             } else break;
         }
-        password = Utils.promptInput("Enter your password: ");
+        password = Utils.promptPassword("Enter your password: ");
         String name = Utils.promptInput("Enter your name: ");
         String phone = Utils.promptInput("Enter your phone number: ");
         Address address = askForUpdateAddress().orElse(null);
@@ -587,7 +587,16 @@ public final class Menu {
                 if (Utils.promptInput("Continue? (y/[n]) ").equalsIgnoreCase("y")) continue;
                 else break;
             }
-            if (!c.addToCart(product, quantity)) System.out.println("Add failed!!!");
+
+            boolean addSuccess;
+            try {
+                addSuccess = c.addToCart(product, quantity);
+            } catch (IllegalArgumentException e) {
+                addSuccess = false;
+                System.out.println(e.getMessage());
+            }
+            if (!addSuccess) System.out.println("Add failed!!!");
+
             if (!Utils.promptInput("Continue adding product? (y/[n]) ").equalsIgnoreCase("y")) {
                 break;
             }

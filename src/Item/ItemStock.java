@@ -1,6 +1,7 @@
 package Item;
 
 import Shop.Shop;
+import Utils.Utils;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -68,8 +69,16 @@ public class ItemStock {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    private void setQuantity(int quantity) {
+        this.quantity = Utils.clamp(quantity, 0, Integer.MAX_VALUE);
+    }
+
+    public boolean buy(int quantity) {
+        if (this.quantity < quantity) {
+            return false;
+        }
+        setQuantity(this.quantity - quantity);
+        return true;
     }
 
     public Shop getShop() {
