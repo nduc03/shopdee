@@ -25,12 +25,12 @@ public final class Utils {
         return Math.min(Math.max(value, min), max);
     }
 
-    public static String promptInput(String prompt) {
+    public static @NotNull String promptInput(String prompt) {
         System.out.print(prompt);
         return sc.nextLine().trim();
     }
 
-    public static String promptPassword(String prompt) {
+    public static @NotNull String promptPassword(String prompt) {
         if (console != null)
             return new String(console.readPassword(prompt));
         return promptInput(prompt);

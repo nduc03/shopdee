@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import org.jetbrains.annotations.NotNull;
 
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
@@ -30,7 +31,7 @@ public class Shipper extends User {
         super(username, password, name, phone, address, UserRole.Shipper);
     }
 
-    public void takesOrder(Order order) {
+    public void takesOrder(@NotNull Order order) {
         if (!order.getOrderState().equals(OrderState.SHOP_ACCEPTED)
                 && !order.getOrderState().equals((OrderState.AT_WAREHOUSE))
         ) throw new IllegalArgumentException("Invalid order state.");
@@ -47,7 +48,7 @@ public class Shipper extends User {
         order.setShipper(this);
     }
 
-    public void finishesOrder(Order order, double payAmount) {
+    public void finishesOrder(@NotNull Order order, double payAmount) {
         if (!order.getOrderState().equals(OrderState.SHIPPING))
             throw new IllegalArgumentException("Invalid order state");
         if (order.getShipper() != this) {

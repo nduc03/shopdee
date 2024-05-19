@@ -444,10 +444,10 @@ public final class Menu {
 
         SystemResponse orderState = system.createOrder(c);
 
-        if (orderState.isSuccess()) {
+        if (orderState.success()) {
             System.out.println("Order successfully");
         } else {
-            System.out.println("Failed to create order due to: " + orderState.getMessage());
+            System.out.println("Failed to create order due to: " + orderState.message());
         }
     }
 
