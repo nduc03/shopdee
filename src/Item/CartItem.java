@@ -56,7 +56,7 @@ public class CartItem {
 
     @Override
     public String toString() {
-        return "Cart Item" +
+        return "Cart Item:" +
                 "\nid: " + id +
                 "\nquantity: " + quantity +
                 "\nitem name: " + itemStock.getItem().getName() +

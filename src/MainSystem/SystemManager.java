@@ -1,6 +1,9 @@
 package MainSystem;
 
-import Item.*;
+import Item.Cart;
+import Item.CartItem;
+import Item.Item;
+import Item.ItemStock;
 import Order.Order;
 import Order.OrderContent;
 import Order.OrderState;
@@ -126,7 +129,7 @@ public final class SystemManager {
         return res;
     }
 
-    public void shopAcceptOrder(Shop shop, List<Integer> orderIds) {
+    public void shopAcceptOrders(Shop shop, List<Integer> orderIds) {
         for (Integer orderId : orderIds) {
             orders.stream()
                     .filter(order -> orderId == order.getId())
@@ -152,6 +155,12 @@ public final class SystemManager {
 
     public List<Order> getOrdersByShop(Shop shop) {
         return orders.stream().filter(order -> order.getShop().equals(shop)).toList();
+    }
+
+    public List<Order> getShopOrdersReadyToTake(Shop shop) {
+        return orders.stream()
+                .filter(order -> order.getShop().equals(shop) && order.getOrderState().equals(OrderState.CREATED))
+                .toList();
     }
 
     public List<Order> getCustomerOrders(Customer customer) {
@@ -223,7 +232,11 @@ public final class SystemManager {
         if (order == null) return false;
 
         double payAmount = SHIPPER_FEE;
-        shipper.finishesOrder(order, payAmount);
+        try {
+            shipper.finishesOrder(order, payAmount);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
         profit -= payAmount;
         return true;
     }

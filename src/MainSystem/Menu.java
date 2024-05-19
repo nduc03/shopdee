@@ -166,8 +166,8 @@ public final class Menu {
                     if (input.equalsIgnoreCase("all")) {
                         for (Order order : customerOrders) {
                             if (!system.userConfirmOrder(c, order))
-                                System.out.printf("Error on confirming order %s. Order might not be in delivered state.", order.getId());
-                            else System.out.printf("Order %s confirmed successfully!", order.getId());
+                                System.out.printf("Error on confirming order %s. Order might not be in delivered state.\n", order.getId());
+                            else System.out.printf("Order %s confirmed successfully!\n", order.getId());
                         }
                     } else {
                         try {
@@ -285,7 +285,7 @@ public final class Menu {
         }
         do {
             int id = Utils.promptIntInput("Enter order id you want to deliver and finish: ").orElse(-1);
-            if (!system.shipperFinishesOrder(s, id)) System.out.println("Invalid");
+            if (!system.shipperFinishesOrder(s, id)) System.out.println("Invalid id.");
         } while (Utils.promptInput("Continue? (y/n) ").equalsIgnoreCase("y"));
     }
 
@@ -384,14 +384,14 @@ public final class Menu {
     }
 
     private static void acceptOrderByShop(Shop shop) {
-        List<Order> ordersByThisShop = system.getOrdersByShop(shop);
+        List<Order> ordersByThisShop = system.getShopOrdersReadyToTake(shop);
         if (ordersByThisShop.isEmpty()) {
             System.out.println("Your shop doesn't have any order.");
             return;
         }
         List<Integer> orderIdsByThisShop = ordersByThisShop.stream().mapToInt(order -> order.getId()).boxed().toList();
-        for (Order order : system.getOrdersByShop(shop)) {
-            System.out.println("List of order by this shop:");
+        System.out.println("List of order by this shop:");
+        for (Order order : ordersByThisShop) {
             System.out.println(order.toString());
         }
 
@@ -403,7 +403,7 @@ public final class Menu {
             else orderIds.add(id);
         } while (Utils.promptInput("Continue? (y/n): ").equalsIgnoreCase("y"));
 
-        system.shopAcceptOrder(shop, orderIds);
+        system.shopAcceptOrders(shop, orderIds);
     }
 
     private static void changeShopInfo(Shop shop) {

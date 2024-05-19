@@ -4,6 +4,7 @@ import Shop.Shop;
 import User.Customer;
 import User.Shipper;
 import Utils.Address;
+import Utils.Utils;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -148,9 +149,9 @@ public class Order {
 
     @Override
     public String toString() {
-        return "Order-------------" +
+        return "-------------Order-------------" +
                 "\nid=" + id +
-                "\norderedDate=" + orderedDate.toString() +
+                "\norderedDate=" + Utils.dateToString(orderedDate) +
                 "\ncustomer=" + customer.getName() +
                 "\nshop=" + shop.getName() +
                 "\norderState=" + orderState +

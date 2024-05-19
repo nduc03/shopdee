@@ -136,7 +136,7 @@ public class Shop {
                 "\nItems are selling:\n" + stockToString() + "-------------------------\n";
     }
 
-    private String stockToString() {
+    private @NotNull String stockToString() {
         StringBuilder sb = new StringBuilder();
         for (ItemStock itemStock : stock) {
             sb.append(itemStock.toString()).append("\n");

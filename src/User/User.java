@@ -2,12 +2,18 @@ package User;
 
 import Utils.Address;
 import Utils.Utils;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.CLASS
 )
@@ -137,11 +143,14 @@ public abstract class User {
     }
 
     public void addBalance(double amount) {
+        if (amount < 0) {
+            return;
+        }
         balance += amount;
     }
 
     protected void decreaseBalance(double amount) {
-        balance -= amount;
+        balance -= Utils.clamp(amount, 0, balance);
     }
 
     public double withdraw(double amount) {

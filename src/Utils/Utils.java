@@ -1,6 +1,9 @@
 package Utils;
 
 import java.io.Console;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Optional;
 import java.util.Scanner;
@@ -53,5 +56,11 @@ public final class Utils {
             sc.nextLine();
             return Optional.empty();
         }
+    }
+
+    public static String dateToString(Date date) {
+        if (date == null) return "null date";
+        DateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        return fmt.format(date);
     }
 }
