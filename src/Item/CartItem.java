@@ -9,7 +9,6 @@ public class CartItem {
 
     private static int currentId = 50_000; // id range: 50_000 -> 59_999
 
-
     public CartItem(int quantity, ItemStock itemStock) {
         if (quantity <= 0 || quantity > itemStock.getQuantity()) {
             throw new IllegalArgumentException("Invalid quantity when creating a cart item");

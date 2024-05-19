@@ -1,5 +1,7 @@
 package Utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.Console;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,7 +60,7 @@ public final class Utils {
         }
     }
 
-    public static String dateToString(Date date) {
+    public static @NotNull String dateToString(Date date) {
         if (date == null) return "null date";
         DateFormat fmt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         return fmt.format(date);

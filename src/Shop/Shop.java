@@ -34,7 +34,7 @@ public class Shop {
             @JsonProperty("stock") List<ItemStock> stock,
             @JsonProperty("revenue") double revenue,
             @JsonProperty("address") @NotNull Address address
-    ){
+    ) {
         this.id = id;
         this.name = name;
         this.stock = stock;
@@ -67,6 +67,12 @@ public class Shop {
     }
 
     public List<ItemStock> getStock() {
+        // remove empty stock every time getting stock
+        for (int i = stock.size() - 1; i >= 0; i--) {
+            if (stock.get(i).getQuantity() == 0) {
+                stock.remove(i);
+            }
+        }
         return stock;
     }
 
